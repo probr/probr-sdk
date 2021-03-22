@@ -3,7 +3,7 @@ package plugin
 import (
 	"net/rpc"
 
-	"github.com/hashicorp/go-plugin"
+	hcplugin "github.com/hashicorp/go-plugin"
 )
 
 // ServicePack is the interface that we're exposing as a plugin.
@@ -54,10 +54,10 @@ type ServicePackPlugin struct {
 	Impl ServicePack
 }
 
-func (p *ServicePackPlugin) Server(*plugin.MuxBroker) (interface{}, error) {
+func (p *ServicePackPlugin) Server(*hcplugin.MuxBroker) (interface{}, error) {
 	return &ServicePackRPCServer{Impl: p.Impl}, nil
 }
 
-func (ServicePackPlugin) Client(b *plugin.MuxBroker, c *rpc.Client) (interface{}, error) {
+func (ServicePackPlugin) Client(b *hcplugin.MuxBroker, c *rpc.Client) (interface{}, error) {
 	return &ServicePackRPC{client: c}, nil
 }
