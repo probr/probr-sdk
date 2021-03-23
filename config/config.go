@@ -50,13 +50,14 @@ func Init(configPath string) error {
 	config, err := NewConfig(configPath)
 	if err != nil {
 		//log.Printf("[ERROR] %v", err)
-		return config, err
+		return err
 	}
 
 	setFromEnvOrDefaults(&config) // Set any values not retrieved from file
 	//log.Printf("[DEBUG] Config initialized by %s", utils.CallerName(1))
 
 	Vars = config
+	return nil
 }
 
 // NewConfig overrides the current config.VarsObject values
