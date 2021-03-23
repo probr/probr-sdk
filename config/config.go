@@ -51,8 +51,7 @@ func Init(configPath string) (Vars, error) {
 		//log.Printf("[ERROR] %v", err)
 		return config, err
 	}
-	setFromEnvOrDefaults(&config)            // Set any values not retrieved from file
-	SetLogFilter(config.LogLevel, os.Stderr) // Set the minimum log level obtained from Vars
+	setFromEnvOrDefaults(&config) // Set any values not retrieved from file
 	//log.Printf("[DEBUG] Config initialized by %s", utils.CallerName(1))
 
 	return config, nil
