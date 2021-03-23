@@ -1,7 +1,7 @@
 package config
 
-// Vars contains all top-level config vars
-type Vars struct {
+// VarsObject contains all top-level config vars
+type VarsObject struct {
 	// NOTE: Env and Defaults are ONLY available if corresponding logic is added to defaults.go
 	ServicePacks              ServicePacks   `yaml:"ServicePacks"`
 	CloudProviders            CloudProviders `yaml:"CloudProviders"`
