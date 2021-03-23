@@ -16,9 +16,9 @@ func TestNewConfig(t *testing.T) {
 		t.Fail()
 	}
 	switch interface{}(config).(type) {
-	case Vars:
+	case VarsObject:
 	default:
-		t.Log("NewConfig did not create a Vars object")
+		t.Log("NewConfig did not create a VarsObject object")
 		t.Fail()
 	}
 }

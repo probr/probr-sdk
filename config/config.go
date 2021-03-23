@@ -13,16 +13,18 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+var Vars VarsObject
+
 // GetTags returns Tags, prioritising command line parameter over vars file
-func (ctx *Vars) GetTags() string {
+func (ctx *VarsObject) GetTags() string {
 	if ctx.Tags == "" {
 		ctx.handleTagExclusions() // only process tag exclusions from vars file if not supplied via the command line
 	}
 	return ctx.Tags
 }
 
-// SetTags will parse the tags specified in Vars.Tags
-func (ctx *Vars) SetTags(tags map[string][]string) {
+// SetTags will parse the tags specified in VarsObject.Tags
+func (ctx *VarsObject) SetTags(tags map[string][]string) {
 	configTags := strings.Split(ctx.GetTags(), ",")
 	for _, configTag := range configTags {
 		for _, tag := range tags[configTag] {
@@ -33,7 +35,7 @@ func (ctx *Vars) SetTags(tags map[string][]string) {
 }
 
 // Handle tag exclusions provided via the config vars file
-func (ctx *Vars) handleTagExclusions() {
+func (ctx *VarsObject) handleTagExclusions() {
 	for _, tag := range ctx.TagExclusions {
 		if ctx.Tags == "" {
 			ctx.Tags = "~@" + tag
@@ -43,8 +45,8 @@ func (ctx *Vars) handleTagExclusions() {
 	}
 }
 
-// Init will override config.Vars with the content retrieved from a filepath
-func Init(configPath string) (Vars, error) {
+// Init will override config.VarsObject with the content retrieved from a filepath
+func Init(configPath string) (VarsObject, error) {
 	config, err := NewConfig(configPath)
 
 	if err != nil {
@@ -57,10 +59,10 @@ func Init(configPath string) (Vars, error) {
 	return config, nil
 }
 
-// NewConfig overrides the current config.Vars values
-func NewConfig(c string) (Vars, error) {
+// NewConfig overrides the current config.VarsObject values
+func NewConfig(c string) (VarsObject, error) {
 	// Create config structure
-	config := Vars{}
+	config := VarsObject{}
 	if c == "" {
 		return config, nil // No file path provided, return empty config
 	}
@@ -99,7 +101,7 @@ func ValidateConfigPath(path string) error {
 }
 
 // LogConfigState will write the config file to the write directory
-func (ctx *Vars) LogConfigState() {
+func (ctx *VarsObject) LogConfigState() {
 	json, _ := json.MarshalIndent(ctx, "", "  ")
 	//log.Printf("[INFO] Config State: %s", json)
 	path := filepath.Join(ctx.GetWriteDirectory(), "config.json")
@@ -111,14 +113,14 @@ func (ctx *Vars) LogConfigState() {
 }
 
 // TmpDir creates and returns -tmp- directory within WriteDirectory
-func (ctx *Vars) TmpDir() string {
+func (ctx *VarsObject) TmpDir() string {
 	tmpDir := filepath.Join(ctx.GetWriteDirectory(), "tmp")
 	_ = os.Mkdir(tmpDir, 0755) // Creates if not already existing
 	return tmpDir
 }
 
 // Overwrite returns the string value of the OverwriteHistoricalAudits in bool format
-func (ctx *Vars) Overwrite() bool {
+func (ctx *VarsObject) Overwrite() bool {
 	value, err := strconv.ParseBool(ctx.OverwriteHistoricalAudits)
 	if err != nil {
 		//log.Printf("[ERROR] Could not parse value '%s' for OverwriteHistoricalAudits %s", ctx.OverwriteHistoricalAudits, err)
@@ -128,21 +130,21 @@ func (ctx *Vars) Overwrite() bool {
 }
 
 // AuditDir creates and returns -audit- directory within WriteDirectory
-func (ctx *Vars) AuditDir() string {
+func (ctx *VarsObject) AuditDir() string {
 	auditDir := filepath.Join(ctx.GetWriteDirectory(), "audit")
 	_ = os.Mkdir(auditDir, 0755) // Creates if not already existing
 	return auditDir
 }
 
 // CucumberDir creates and returns -cucumber- directory within WriteDirectory
-func (ctx *Vars) CucumberDir() string {
+func (ctx *VarsObject) CucumberDir() string {
 	cucumberDir := filepath.Join(ctx.GetWriteDirectory(), "cucumber")
 	_ = os.Mkdir(cucumberDir, 0755) // Creates if not already existing
 	return cucumberDir
 }
 
 // GetWriteDirectory creates and returns the output folder specified in settings
-func (ctx *Vars) GetWriteDirectory() string {
+func (ctx *VarsObject) GetWriteDirectory() string {
 	_ = os.Mkdir(ctx.WriteDirectory, 0755) // Creates if not already existing
 	return ctx.WriteDirectory
 }
