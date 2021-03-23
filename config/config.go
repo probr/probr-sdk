@@ -48,14 +48,15 @@ func (ctx *VarsObject) handleTagExclusions() {
 // Init will override config.VarsObject with the content retrieved from a filepath
 func Init(configPath string) (VarsObject, error) {
 	config, err := NewConfig(configPath)
-
 	if err != nil {
 		//log.Printf("[ERROR] %v", err)
 		return config, err
 	}
+
 	setFromEnvOrDefaults(&config) // Set any values not retrieved from file
 	//log.Printf("[DEBUG] Config initialized by %s", utils.CallerName(1))
 
+	Vars = config
 	return config, nil
 }
 
