@@ -2,9 +2,21 @@ package plugin
 
 import (
 	"net/rpc"
+	"os"
 
+	"github.com/hashicorp/go-hclog"
 	hcplugin "github.com/hashicorp/go-plugin"
 )
+
+var Logger hclog.Logger
+
+func init() {
+	Logger = hclog.New(&hclog.LoggerOptions{
+		Level:      hclog.Trace,
+		Output:     os.Stderr,
+		JSONFormat: true,
+	})
+}
 
 // ServicePack is the interface that we're exposing as a plugin.
 type ServicePack interface {
