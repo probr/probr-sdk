@@ -10,6 +10,8 @@ import (
 const (
 	// The constants below are the names of the plugins that can be dispensed
 	// from the plugin server.
+
+	// ServicePackPluginName ...
 	ServicePackPluginName = "servicepack"
 )
 
