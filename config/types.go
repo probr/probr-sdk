@@ -3,6 +3,7 @@ package config
 // VarOptions contains all top-level config vars
 type VarOptions struct {
 	// NOTE: Env and Defaults are ONLY available if corresponding logic is added to defaults.go
+	Run                       []string       `yaml:"Run"`
 	ServicePacks              ServicePacks   `yaml:"ServicePacks"`
 	CloudProviders            CloudProviders `yaml:"CloudProviders"`
 	OutputType                string         `yaml:"OutputType"`
