@@ -51,23 +51,26 @@ type ProbeDescriptor struct {
 // ProbeStore maintains a collection of probes to be run and their status.  FailedProbes is an explicit
 // collection of failed probes.
 type ProbeStore struct {
+	Name         string
 	Probes       map[string]*GodogProbe
 	FailedProbes map[ProbeStatus]*GodogProbe
 	Lock         sync.RWMutex
 }
 
 // NewProbeStore creates a new object to store GodogProbes
-func NewProbeStore() *ProbeStore {
+func NewProbeStore(name string) *ProbeStore {
 	return &ProbeStore{
+		Name:   name,
 		Probes: make(map[string]*GodogProbe),
 	}
 }
 
 // AddProbe provided GodogProbe to the ProbeStore.
-func (ps *ProbeStore) AddProbe(probe *GodogProbe) {
+func (ps *ProbeStore) AddProbe(preParsedProbe Probe) {
 	ps.Lock.Lock()
 	defer ps.Lock.Unlock()
 
+	probe := makeGodogProbe(ps.Name, preParsedProbe)
 	status := Pending
 	probe.Status = &status
 	ps.Probes[probe.ProbeDescriptor.Name] = probe
@@ -119,4 +122,14 @@ func (ps *ProbeStore) ExecAllProbes() (int, error) {
 		}
 	}
 	return status, err
+}
+
+func makeGodogProbe(pack string, p Probe) *GodogProbe {
+	descriptor := ProbeDescriptor{Group: Kubernetes, Name: p.Name()}
+	return &GodogProbe{
+		ProbeDescriptor:     &descriptor,
+		ProbeInitializer:    p.ProbeInitialize,
+		ScenarioInitializer: p.ScenarioInitialize,
+		FeaturePath:         p.Path(),
+	}
 }

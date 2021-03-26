@@ -3,8 +3,11 @@ package probeengine
 import (
 	"bytes"
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/citihub/probr-sdk/audit"
+	"github.com/citihub/probr-sdk/config"
 	"github.com/cucumber/godog"
 )
 
@@ -56,4 +59,50 @@ func (ps *ProbeStore) RunProbe(probe *GodogProbe) (int, error) {
 
 	probe.Results = o // If in-mem output provided, store as Results
 	return s, err
+}
+
+// RunAllProbes retrieves and executes all probes that have been included
+func RunAllProbes(packName string, probes []Probe) (int, *ProbeStore, error) {
+	ts := NewProbeStore(packName)
+
+	for _, probe := range probes {
+		ts.AddProbe(probe)
+	}
+
+	s, err := ts.ExecAllProbes() // Executes all added (queued) tests
+	return s, ts, err
+}
+
+//GetAllProbeResults maps ProbeStore results to strings
+func GetAllProbeResults(ps *ProbeStore) map[string]string {
+	defer CleanupTmp()
+
+	out := make(map[string]string)
+	for name := range ps.Probes {
+		results, name, err := readProbeResults(ps, name)
+		if err != nil {
+			out[name] = err.Error()
+		} else {
+			out[name] = results
+		}
+	}
+	return out
+}
+
+func readProbeResults(ps *ProbeStore, name string) (probeResults, probeName string, err error) {
+	p, err := ps.GetProbe(name)
+	if err != nil {
+		return
+	}
+	probeResults = p.Results.String()
+	probeName = p.ProbeDescriptor.Name
+	return
+}
+
+// CleanupTmp is used to dispose of any temp resources used during execution
+func CleanupTmp() {
+	err := os.RemoveAll(config.Vars.TmpDir())
+	if err != nil {
+		log.Printf("[ERROR] Error removing tmp folder %v", err)
+	}
 }
