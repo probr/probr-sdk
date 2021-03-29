@@ -74,19 +74,19 @@ func RunAllProbes(packName string, probes []Probe) (int, *ProbeStore, error) {
 }
 
 //GetAllProbeResults maps ProbeStore results to strings
-func GetAllProbeResults(ps *ProbeStore) map[string]string {
-	defer CleanupTmp()
-
-	out := make(map[string]string)
+func GetAllProbeResults(ps *ProbeStore) (allResults map[string]string, success bool) {
+	allResults = make(map[string]string)
+	success = true
 	for name := range ps.Probes {
-		results, name, err := readProbeResults(ps, name)
+		probeResults, name, err := readProbeResults(ps, name)
 		if err != nil {
-			out[name] = err.Error()
+			allResults[name] = err.Error()
+			success = false
 		} else {
-			out[name] = results
+			allResults[name] = probeResults
 		}
 	}
-	return out
+	return
 }
 
 func readProbeResults(ps *ProbeStore, name string) (probeResults, probeName string, err error) {
