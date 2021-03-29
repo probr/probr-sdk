@@ -8,24 +8,16 @@ import (
 
 // ServicePack is the interface that we're exposing as a plugin.
 type ServicePack interface {
-	Greet() string
-	// TODO: RunAllProbes
+	RunProbes() error
 }
 
 // ServicePackRPC is an implementation that talks over RPC
 type ServicePackRPC struct{ client *rpc.Client }
 
-// Greet returns a message
-func (g *ServicePackRPC) Greet() string {
-	var resp string
-	err := g.client.Call("Plugin.Greet", new(interface{}), &resp)
-	if err != nil {
-		// You usually want your interfaces to return errors. If they don't,
-		// there isn't much other choice here.
-		panic(err)
-	}
-
-	return resp
+// RunProbes returns a message
+func (g *ServicePackRPC) RunProbes() (err error) {
+	g.client.Call("Plugin.RunProbes", new(interface{}), &err)
+	return
 }
 
 // ServicePackRPCServer is the RPC server that ServicePackRPC talks to, conforming to
@@ -35,10 +27,10 @@ type ServicePackRPCServer struct {
 	Impl ServicePack
 }
 
-// Greet is a wrapper for interface implementation
-func (s *ServicePackRPCServer) Greet(args interface{}, resp *string) error {
-	*resp = s.Impl.Greet()
-	return nil
+// RunProbes is a wrapper for interface implementation
+func (s *ServicePackRPCServer) RunProbes(args interface{}, resp *error) error {
+	*resp = s.Impl.RunProbes()
+	return *resp
 }
 
 // ServicePackPlugin is the implementation of plugin.Plugin so we can serve/consume this
