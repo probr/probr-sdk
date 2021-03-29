@@ -15,9 +15,9 @@ type ServicePack interface {
 type ServicePackRPC struct{ client *rpc.Client }
 
 // RunProbes returns a message
-func (g *ServicePackRPC) RunProbes() (err error) {
-	g.client.Call("Plugin.RunProbes", new(interface{}), &err)
-	return
+func (g *ServicePackRPC) RunProbes() error {
+	var err error
+	return g.client.Call("Plugin.RunProbes", new(interface{}), &err)
 }
 
 // ServicePackRPCServer is the RPC server that ServicePackRPC talks to, conforming to
