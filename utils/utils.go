@@ -4,6 +4,7 @@ package utils
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -145,4 +146,21 @@ func WriteAllowed(path string, overwrite bool) bool {
 		return false
 	}
 	return true
+}
+
+// GetExecutableName returns name of executable without file extension
+func GetExecutableName() string {
+	execAbsPath, err := os.Executable()
+	if err != nil {
+		log.Fatalf("Critical error ocurred while getting executable name")
+	}
+
+	execName := filepath.Base(execAbsPath)
+
+	// Remove extension if it exists
+	if ext := filepath.Ext(execName); ext != "" {
+		execName = strings.TrimSuffix(execName, ext)
+	}
+
+	return execName
 }

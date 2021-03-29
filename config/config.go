@@ -155,15 +155,22 @@ func (ctx *VarOptions) CucumberDir() string {
 	return cucumberDir
 }
 
-// GetWriteDirectory creates and returns the output folder specified in settings
+// GetWriteDirectory creates and returns the output folder specified in settings + executable name
 func (ctx *VarOptions) GetWriteDirectory() string {
-	_ = os.Mkdir(ctx.WriteDirectory, 0755) // Creates if not already existing
-	return ctx.WriteDirectory
+	//_ = os.Mkdir(ctx.WriteDirectory, 0755) // Creates if not already existing
+
+	execName := utils.GetExecutableName()
+
+	// Add executable name to WriteDirectory
+	outputDir := filepath.Join(ctx.WriteDirectory, execName)
+	_ = os.Mkdir(outputDir, 0755) // Creates if not already existing
+
+	return outputDir
 }
 
 func (ctx *VarOptions) handleConfigFileExclusions() {
-	ctx.handleProbeExclusions("kubernetes", ctx.ServicePacks.Kubernetes.Probes)
-	ctx.handleProbeExclusions("storage", ctx.ServicePacks.Storage.Probes)
+	ctx.handleProbeExclusions("kubernetes", ctx.ServicePacks.Kubernetes.Probes) //TODO: logic specific to service packs should be handled outside of SDK
+	ctx.handleProbeExclusions("storage", ctx.ServicePacks.Storage.Probes)       //TODO: logic specific to service packs should be handled outside of SDK
 }
 
 func (ctx *VarOptions) handleProbeExclusions(packName string, probes []Probe) {
