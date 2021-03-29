@@ -157,7 +157,6 @@ func (ctx *VarOptions) CucumberDir() string {
 
 // GetWriteDirectory creates and returns the output folder specified in settings + executable name
 func (ctx *VarOptions) GetWriteDirectory() string {
-	//_ = os.Mkdir(ctx.WriteDirectory, 0755) // Creates if not already existing
 
 	execName := utils.GetExecutableName()
 
