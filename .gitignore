@@ -3,11 +3,5 @@
 .vscode
 __debug_bin
 
-# probr misc ('probr' is Linux exe)
-probr_output
-servicepacks
-probr
-probr.exe
-
 # Test
 coverage.out
