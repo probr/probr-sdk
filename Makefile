@@ -1,7 +1,7 @@
-build:		go-tidy go-build go-test
-quick:		go-build
-test:		go-test
-testcov:	go-test-cov
+build: go-tidy go-build go-test
+quick: go-build
+test: go-test
+testcov: go-test-cov
 
 go-tidy:
 	@echo "  >  Tidying go.mod ..."
