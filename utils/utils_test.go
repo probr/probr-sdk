@@ -212,3 +212,31 @@ func TestAuditPlaceholders(t *testing.T) {
 		t.Errorf("Audit Placeholder objects did not return as expected")
 	}
 }
+
+func TestGetExecutableName(t *testing.T) {
+
+	// Get current executable name for test runner
+	execAbsPath, _ := os.Executable()
+	testExecName := filepath.Base(execAbsPath)
+	if ext := filepath.Ext(testExecName); ext != "" {
+		testExecName = strings.TrimSuffix(testExecName, ext)
+	}
+
+	tests := []struct {
+		testName       string
+		expectedResult string
+	}{
+		// Test cases
+		{
+			testName:       "GetExecutableName_ReturnsNameWithoutExtension",
+			expectedResult: testExecName,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.testName, func(t *testing.T) {
+			if got := GetExecutableName(); got != tt.expectedResult {
+				t.Errorf("GetExecutableName() = %v, want %v", got, tt.expectedResult)
+			}
+		})
+	}
+}
