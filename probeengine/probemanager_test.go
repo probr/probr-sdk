@@ -2,23 +2,46 @@ package probeengine
 
 import (
 	"testing"
+
+	"github.com/cucumber/godog"
 )
 
 const (
-	probeName = "good_probe"
+	probeStoreName = "TestProbeStore"
+	probeName      = "good_probe"
 )
 
-func createProbeObj(name string) *GodogProbe {
-	return &GodogProbe{
-		ProbeDescriptor: &ProbeDescriptor{
-			Name:  name,
-			Group: Kubernetes,
-		},
+type TestProbe struct {
+	name string
+}
+
+// Name presents the name of this probe for external reference
+func (probe TestProbe) Name() string {
+	return probe.name
+}
+
+// Path presents the path of these feature files for external reference
+func (probe TestProbe) Path() string {
+	return ""
+}
+
+// ProbeInitialize handles any overall Test Suite initialisation steps.  This is registered with the
+// test handler as part of the init() function.
+func (probe TestProbe) ProbeInitialize(ctx *godog.TestSuiteContext) {
+}
+
+// ScenarioInitialize provides initialization logic before each scenario is executed
+func (probe TestProbe) ScenarioInitialize(ctx *godog.ScenarioContext) {
+}
+
+func createProbeObj(name string) Probe {
+	return &TestProbe{
+		name: name,
 	}
 }
 
 func TestNewProbeStore(t *testing.T) {
-	ts := NewProbeStore()
+	ts := NewProbeStore(probeStoreName)
 	if ts == nil {
 		t.Logf("Probe store was not initialized")
 		t.Fail()
@@ -29,7 +52,7 @@ func TestNewProbeStore(t *testing.T) {
 }
 
 func TestAddProbe(t *testing.T) {
-	ps := NewProbeStore()
+	ps := NewProbeStore(probeStoreName)
 	ps.AddProbe(createProbeObj(probeName))
 
 	// Verify correct conditions succeed
@@ -43,7 +66,7 @@ func TestAddProbe(t *testing.T) {
 }
 
 func TestGetProbe(t *testing.T) {
-	ps := NewProbeStore()
+	ps := NewProbeStore(probeStoreName)
 	probe := createProbeObj(probeName)
 	ps.AddProbe(probe)
 
@@ -52,7 +75,7 @@ func TestGetProbe(t *testing.T) {
 		t.Logf(err.Error())
 		t.Fail()
 	}
-	if retrievedProbe != probe {
+	if retrievedProbe.ProbeDescriptor.Name != probe.Name() {
 		t.Logf("Retrieved probe does not match added probe")
 		t.Fail()
 	}

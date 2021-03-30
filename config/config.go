@@ -127,7 +127,7 @@ func (ctx *VarOptions) LogConfigState() {
 // TmpDir creates and returns -tmp- directory within WriteDirectory
 func (ctx *VarOptions) TmpDir() string {
 	tmpDir := filepath.Join(ctx.GetWriteDirectory(), "tmp")
-	_ = os.Mkdir(tmpDir, 0755) // Creates if not already existing
+	_ = os.MkdirAll(tmpDir, 0755) // Creates if not already existing
 	return tmpDir
 }
 
@@ -144,14 +144,14 @@ func (ctx *VarOptions) Overwrite() bool {
 // AuditDir creates and returns -audit- directory within WriteDirectory
 func (ctx *VarOptions) AuditDir() string {
 	auditDir := filepath.Join(ctx.GetWriteDirectory(), "audit")
-	_ = os.Mkdir(auditDir, 0755) // Creates if not already existing
+	_ = os.MkdirAll(auditDir, 0755) // Creates if not already existing
 	return auditDir
 }
 
 // CucumberDir creates and returns -cucumber- directory within WriteDirectory
 func (ctx *VarOptions) CucumberDir() string {
 	cucumberDir := filepath.Join(ctx.GetWriteDirectory(), "cucumber")
-	_ = os.Mkdir(cucumberDir, 0755) // Creates if not already existing
+	_ = os.MkdirAll(cucumberDir, 0755) // Creates if not already existing
 	return cucumberDir
 }
 
