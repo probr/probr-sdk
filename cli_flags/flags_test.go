@@ -7,12 +7,12 @@ import (
 )
 
 func TestFlags_ExecuteHandlers(t *testing.T) {
-	var testFuncOutput []string
-
 	testArgs := make(map[string]string)
+	testFuncOutput := make(map[string]string)
+
 	testArgs["runTestFunc"] = "set the test func value"
 	testArgs["runTestFunc2"] = "set another test func value"
-	testArgs["runTestFunc3"] = "be really redundant in this test"
+	testArgs["runTestFunc3"] = "be really redundant"
 
 	for key, value := range testArgs {
 		os.Args = append(os.Args, fmt.Sprintf("-%s=%s", key, value))
@@ -21,19 +21,20 @@ func TestFlags_ExecuteHandlers(t *testing.T) {
 	var flags Flags
 	for key := range testArgs {
 		flags.NewStringFlag(key, "no description", func(value *string) {
-			testFuncOutput = append(testFuncOutput, *value)
+			testFuncOutput[key] = *value
 		})
 	}
+
 	flags.ExecuteHandlers()
 
-	i := 0
-	for _, value := range testArgs {
-		if testFuncOutput[i] != value {
-			t.Errorf("Expected test args to contain '%s', but did not find it", value)
-			return
+	for _, flag := range flags.PreParsedFlags {
+		name := flag.(StringFlag).Name
+		value := *flag.(StringFlag).Value
+		if testArgs[name] != value {
+			t.Errorf("Expected value for '%s' to be '%s', but found '%v'", name, value, testArgs[name])
 		}
-		i = i + 1
 	}
+
 }
 
 func TestFlags_NewStringFlag(t *testing.T) {

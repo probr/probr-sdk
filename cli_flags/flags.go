@@ -24,12 +24,14 @@ type Flags struct {
 
 // StringFlag holds the user-provided value for the flag, and the function to be run within executeHandler
 type StringFlag struct {
+	Name    string
 	Handler stringHandlerFunc
 	Value   *string
 }
 
 // BoolFlag holds the user-provided value for the flag, and the function to be run within executeHandler
 type BoolFlag struct {
+	Name    string
 	Handler boolHandlerFunc
 	Value   *bool
 }
@@ -53,6 +55,7 @@ func (flags *Flags) ExecuteHandlers() {
 // NewStringFlag creates a new flag that accepts string values
 func (flags *Flags) NewStringFlag(name string, usage string, handler stringHandlerFunc) {
 	f := StringFlag{
+		Name:    name,
 		Handler: handler,
 		Value:   new(string),
 	}
