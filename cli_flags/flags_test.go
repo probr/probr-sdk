@@ -19,7 +19,7 @@ func TestFlags_ExecuteHandlers(t *testing.T) {
 	}
 
 	var flags Flags
-	for key, _ := range testArgs {
+	for key := range testArgs {
 		flags.NewStringFlag(key, "no description", func(value *string) {
 			testFuncOutput = append(testFuncOutput, *value)
 		})
