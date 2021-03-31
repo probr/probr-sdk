@@ -12,10 +12,12 @@ import (
 type stringHandlerFunc func(value *string)
 type boolHandlerFunc func(value *bool)
 
+// Flag allows for different value types to be handled
 type Flag interface {
 	executeHandler()
 }
 
+// Flags allows for the gathering all flag definitions and executing them together
 type Flags struct {
 	PreParsedFlags []Flag
 }
@@ -48,6 +50,7 @@ func (flags *Flags) ExecuteHandlers() {
 	}
 }
 
+// NewStringFlag creates a new flag that accepts string values
 func (flags *Flags) NewStringFlag(name string, usage string, handler stringHandlerFunc) {
 	f := StringFlag{
 		Handler: handler,
@@ -57,6 +60,7 @@ func (flags *Flags) NewStringFlag(name string, usage string, handler stringHandl
 	flags.PreParsedFlags = append(flags.PreParsedFlags, f)
 }
 
+// NewBoolFlag creates a new flag that accepts bool values
 func (flags *Flags) NewBoolFlag(name string, usage string, handler boolHandlerFunc) {
 	f := BoolFlag{
 		Handler: handler,
@@ -105,6 +109,7 @@ func LoglevelHandler(v *string) {
 	}
 }
 
+// ResultsformatHandler parses a flag and sets the godog output type
 func ResultsformatHandler(v *string) {
 	value := *v
 	if len(value) > 0 {
@@ -119,6 +124,7 @@ func ResultsformatHandler(v *string) {
 	}
 }
 
+// TagsHandler parses a flag and sets the godog/cucumber tags
 func TagsHandler(v *string) {
 	value := *v
 	if len(value) > 0 {
