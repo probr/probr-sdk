@@ -1,0 +1,7 @@
+
+# VS Code
+.vscode
+__debug_bin
+
+# Test
+coverage.out

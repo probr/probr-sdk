@@ -125,7 +125,7 @@ func (ps *ProbeStore) ExecAllProbes() (int, error) {
 }
 
 func makeGodogProbe(pack string, p Probe) *GodogProbe {
-	descriptor := ProbeDescriptor{Group: Kubernetes, Name: p.Name()}
+	descriptor := ProbeDescriptor{Group: Kubernetes, Name: p.Name()} //TODO: Hard dependency on Kubernetes group. This should be handled outside of SDK.
 	return &GodogProbe{
 		ProbeDescriptor:     &descriptor,
 		ProbeInitializer:    p.ProbeInitialize,

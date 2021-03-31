@@ -1,6 +1,7 @@
 package probeengine
 
 import (
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -10,6 +11,22 @@ import (
 	"github.com/citihub/probr-sdk/utils"
 	"github.com/cucumber/godog"
 )
+
+var testFolder string
+
+func TestMain(m *testing.M) {
+
+	log.Print("Initializing global test resources")
+
+	f, testFolderErr := filepath.Abs("./testdata") // Need absolute path so that pkger.Open can work
+	if testFolderErr != nil {
+		log.Fatalf("Error loading test data folder: %v", testFolderErr)
+	}
+	testFolder = f
+	log.Printf("testFolder set to: '%s'", testFolder)
+
+	os.Exit(m.Run())
+}
 
 func TestGetRootDir(t *testing.T) {
 	// Make sure it doesn't catch one of the several fail conditions
@@ -110,60 +127,60 @@ func TestGetFeaturePath(t *testing.T) {
 	}
 }
 
-// func Test_getTmpFeatureFile(t *testing.T) {
-// 	testTmpDir := filepath.Join("testdata", utils.RandomString(10))
+func Test_getTmpFeatureFile(t *testing.T) {
 
-// 	// Faking original behavior
-// 	tmpDirFunc = func() string {
-// 		return testTmpDir
-// 	}
-// 	defer func() {
-// 		tmpDirFunc = config.Vars.TmpDir //Restoring to original function after test
+	testTmpDir := filepath.Join(testFolder, utils.RandomString(10))
 
-// 		// Delete test data after tests
-// 		os.RemoveAll(testTmpDir)
-// 	}()
+	// Faking original behavior
+	tmpDirFunc = func() string {
+		return testTmpDir
+	}
+	defer func() {
+		tmpDirFunc = config.Vars.TmpDir //Restoring to original function after test
 
-// 	type args struct {
-// 		featurePath string
-// 	}
-// 	tests := []struct {
-// 		testName       string
-// 		testArgs       args
-// 		expectedResult string
-// 		expectedErr    bool
-// 	}{
-// 		{
-// 			testName:       "ShouldCreateTmpFolderWithFeatureFile",
-// 			testArgs:       args{featurePath: filepath.Join("internal", "container_registry_access", "container_registry_access.feature")},
-// 			expectedResult: filepath.Join(testTmpDir, "internal", "container_registry_access", "container_registry_access.feature"),
-// 			expectedErr:    false,
-// 		},
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.testName, func(t *testing.T) {
-// 			got, err := getTmpFeatureFile(tt.testArgs.featurePath)
-// 			if (err != nil) != tt.expectedErr {
-// 				t.Errorf("getTmpFeatureFile() error = %v, expected error: %v", err, tt.expectedErr)
-// 				return
-// 			}
-// 			if got != tt.expectedResult {
-// 				t.Errorf("getTmpFeatureFile() = %v, expected %v", got, tt.expectedResult)
-// 			}
-// 			// Check if file was saved to tmp location
-// 			_, e := os.Stat(tt.expectedResult)
-// 			if e != nil {
-// 				t.Errorf("File not found in tmp location: %v - Error: %v", tt.expectedResult, e)
-// 			}
-// 		})
-// 	}
-// }
+		os.RemoveAll(testTmpDir) // Delete test data after tests
+	}()
+
+	type args struct {
+		featurePath string
+	}
+	tests := []struct {
+		testName       string
+		testArgs       args
+		expectedResult string
+		expectedErr    bool
+	}{
+		{
+			testName:       "ShouldCreateTmpFolderWithFeatureFile",
+			testArgs:       args{featurePath: filepath.Join("probeengine", "testdata", "Test_getTmpFeatureFile.feature")}, // This cannot be an absolute path, since it will be joined with temp dir
+			expectedResult: filepath.Join(testTmpDir, "probeengine", "testdata", "Test_getTmpFeatureFile.feature"),
+			expectedErr:    false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.testName, func(t *testing.T) {
+			got, err := getTmpFeatureFile(tt.testArgs.featurePath)
+			if (err != nil) != tt.expectedErr {
+				t.Errorf("getTmpFeatureFile() error = %v, expected error: %v", err, tt.expectedErr)
+				return
+			}
+			if got != tt.expectedResult {
+				t.Errorf("getTmpFeatureFile() = %v, expected %v", got, tt.expectedResult)
+			}
+			// Check if file was saved to tmp location
+			_, e := os.Stat(tt.expectedResult)
+			if e != nil {
+				t.Errorf("File not found in tmp location: %v - Error: %v", tt.expectedResult, e)
+			}
+		})
+	}
+}
 
 func Test_unpackFileAndSave(t *testing.T) {
-	testTmpDir := filepath.Join("testdata", utils.RandomString(10))
+
+	testTargetDir := filepath.Join(testFolder, utils.RandomString(10))
 	defer func() {
-		// Delete test data after tests
-		os.RemoveAll(testTmpDir)
+		os.RemoveAll(testTargetDir) // Delete test data after tests
 	}()
 
 	type args struct {
@@ -178,8 +195,8 @@ func Test_unpackFileAndSave(t *testing.T) {
 		{
 			testName: "ShouldCreateFileInNewLocation",
 			testArgs: args{
-				origFilePath: filepath.Join("internal", "container_registry_access", "container_registry_access.feature"),
-				newFilePath:  filepath.Join(testTmpDir, "internal", "container_registry_access", "container_registry_access.feature"),
+				origFilePath: filepath.Join(testFolder, "Test_unpackFileAndSave.feature"),
+				newFilePath:  filepath.Join(testTargetDir, "Test_unpackFileAndSave.feature"),
 			},
 			expectedErr: false,
 		},
