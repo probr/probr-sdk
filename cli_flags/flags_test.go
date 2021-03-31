@@ -1,44 +1,84 @@
 package cliflags
 
 import (
+	"fmt"
 	"os"
 	"testing"
-
-	"github.com/citihub/probr-sdk/config"
 )
 
-func TestHandleFlags(t *testing.T) {
+func TestFlags_ExecuteHandlers(t *testing.T) {
+	testArgs := make(map[string]string)
+	testFuncOutput := make(map[string]string)
 
-	// Note:
-	// This test is only verifying WriteDirectory cli flag.
-	// It could be extended to test other flags, or all. If so, it should be refactored to avoid code duplication. Keeping it simple for now (YAGNI).
+	testArgs["runTestFunc"] = "set the test func value"
+	testArgs["runTestFunc2"] = "set another test func value"
+	testArgs["runTestFunc3"] = "be really redundant"
 
+	for key, value := range testArgs {
+		os.Args = append(os.Args, fmt.Sprintf("-%s=%s", key, value))
+	}
+
+	var flags Flags
+	for key := range testArgs {
+		flags.NewStringFlag(key, "no description", func(value *string) {
+			testFuncOutput[key] = *value
+		})
+	}
+
+	flags.ExecuteHandlers()
+
+	for _, flag := range flags.PreParsedFlags {
+		name := flag.(StringFlag).Name
+		value := *flag.(StringFlag).Value
+		if testArgs[name] != value {
+			t.Errorf("Expected value for '%s' to be '%s', but found '%v'", name, value, testArgs[name])
+		}
+	}
+
+}
+
+func TestFlags_NewStringFlag(t *testing.T) {
+	var testFuncOutput string
+
+	type args struct {
+		name    string
+		usage   string
+		handler stringHandlerFunc
+	}
 	tests := []struct {
-		testName                  string
-		addCliFlag                string
-		expectedResultInConfigVar string
+		name string
+		args args
 	}{
 		{
-			testName:                  "HandleFlag_WithCliFlag_ShouldAddCliFlagValueToGlobalConfig",
-			addCliFlag:                "-writedirectory=newdirectoryfromcliflag",
-			expectedResultInConfigVar: "newdirectoryfromcliflag",
+			name: "Test that flag is created",
+			args: args{
+				name:  "testFunc1",
+				usage: "testFunc1 usage",
+				handler: func(value *string) {
+					testFuncOutput = *value
+				},
+			},
+		},
+		{
+			name: "Test that flag is still created",
+			args: args{
+				name:  "testFunc2",
+				usage: "testFunc2 usage",
+				handler: func(value *string) {
+					testFuncOutput = *value
+				},
+			},
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.testName, func(t *testing.T) {
-
-			// Simulating cli arguments
-			os.Args = append(os.Args, "-writedirectory=newdirectoryfromcliflag")
-
-			// This function is expected to modify global configVar object, setting values based on tags
-			// It cannot be called more than once, since global flag object is used and it would raise a "flag redefined" error.
-			// An alternative for a potential refactoring is to use FlagSet instead. See: https://stackoverflow.com/questions/24504024/defining-independent-flagsets-in-golang
-			HandleFlags()
-
-			//Check WriteDirectory was set in global ConfigVars
-			if config.Vars.WriteDirectory != tt.expectedResultInConfigVar {
-				t.Errorf("HandleFlags(); config.Vars.WiteDirectory = %v, Expected: %v", config.Vars.WriteDirectory, tt.expectedResultInConfigVar)
-				return
+		t.Run(tt.name, func(t *testing.T) {
+			var flags Flags
+			expected := "someString/" + tt.args.name
+			os.Args = append(os.Args, fmt.Sprintf("-%s=%s", tt.args.name, expected))
+			flags.NewStringFlag(tt.args.name, tt.args.usage, tt.args.handler)
+			flags.ExecuteHandlers()
+			if testFuncOutput == tt.args.name {
+				t.Errorf("Expected test args to contain '%s', but found %s", expected, testFuncOutput)
 			}
 		})
 	}

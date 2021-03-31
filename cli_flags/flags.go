@@ -9,135 +9,134 @@ import (
 	"github.com/citihub/probr-sdk/utils"
 )
 
-type flagHandlerFunc func(v interface{})
+type stringHandlerFunc func(value *string)
+type boolHandlerFunc func(value *bool)
 
-// Flag holds the user-provided value for the flag, and the function to be run within executeHandler
-type Flag struct {
-	// exported to avoid conflict with the default `flag` provided in go
-	Handler flagHandlerFunc
-	Value   interface{}
+// Flag allows for different value types to be handled
+type Flag interface {
+	executeHandler()
 }
 
-var flags []Flag
+// Flags allows for the gathering all flag definitions and executing them together
+type Flags struct {
+	PreParsedFlags []Flag
+}
 
-func (f Flag) executeHandler() {
+// StringFlag holds the user-provided value for the flag, and the function to be run within executeHandler
+type StringFlag struct {
+	Name    string
+	Handler stringHandlerFunc
+	Value   *string
+}
+
+// BoolFlag holds the user-provided value for the flag, and the function to be run within executeHandler
+type BoolFlag struct {
+	Name    string
+	Handler boolHandlerFunc
+	Value   *bool
+}
+
+func (f StringFlag) executeHandler() {
 	f.Handler(f.Value)
 }
 
-// HandleFlags executes the logic for any flags that are provided via `./probr (--<FLAG>)`
-func HandleFlags() {
+func (f BoolFlag) executeHandler() {
+	f.Handler(f.Value)
+}
 
-	stringFlag("varsfile", "path to config file", varsFileHandler)
-	stringFlag("loglevel", "set log level", loglevelHandler)
-	stringFlag("kubeconfig", "kube config file", kubeConfigHandler)
-	stringFlag("writedirectory", "output directory", writeDirHandler)
-	stringFlag("tags", "feature tags to include or exclude", tagsHandler)
-	stringFlag("resultsformat", "set the bdd results format (default = cucumber)", resultsformatHandler)
-	boolFlag("silent", "disable visual runtime indicator, useful for CI tasks", silentHandler)
-	boolFlag("nosummary", "switch off summary output", nosummaryHandler)
+// ExecuteHandlers executes the logic for any flags that are provided via `./probr (--<FLAG>)`
+func (flags *Flags) ExecuteHandlers() {
 	flag.Parse()
-
-	for _, f := range flags {
+	for _, f := range flags.PreParsedFlags {
 		f.executeHandler()
 	}
 }
 
-func stringFlag(name string, usage string, handler flagHandlerFunc) {
-	f := Flag{
+// NewStringFlag creates a new flag that accepts string values
+func (flags *Flags) NewStringFlag(name string, usage string, handler stringHandlerFunc) {
+	f := StringFlag{
+		Name:    name,
 		Handler: handler,
 		Value:   new(string),
 	}
-	v := f.Value.(*string)
-	flag.StringVar(v, name, "", usage)
-	flags = append(flags, f)
+	flag.StringVar(f.Value, name, "", usage)
+	flags.PreParsedFlags = append(flags.PreParsedFlags, f)
 }
 
-func boolFlag(name string, usage string, handler flagHandlerFunc) {
-	f := Flag{
+// NewBoolFlag creates a new flag that accepts bool values
+func (flags *Flags) NewBoolFlag(name string, usage string, handler boolHandlerFunc) {
+	f := BoolFlag{
 		Handler: handler,
 		Value:   new(bool),
 	}
-	v := f.Value.(*bool)
-	flag.BoolVar(v, name, false, usage)
-	flags = append(flags, f)
+	flag.BoolVar(f.Value, name, false, usage)
+	flags.PreParsedFlags = append(flags.PreParsedFlags, f)
 }
 
-// Note:
-// Even though it's a bit ugly, using things like `*v.(*string)` comes from accepting bool, string, and other flag types
-
-// varsFileHandler initializes configuration with VarsFile overriding env vars & defaults
-func varsFileHandler(v interface{}) {
-	err := config.Init(*v.(*string))
+// VarsFileHandler initializes configuration with VarsFile overriding env vars & defaults
+func VarsFileHandler(v *string) {
+	value := *v
+	err := config.Init(value)
 	if err != nil {
 		log.Fatalf("[ERROR] error returned from config.Init: %v", err)
-	} else if len(*v.(*string)) > 0 {
-		config.Vars.VarsFile = *v.(*string)
-		log.Printf("[INFO] Config read from file '%v', but may still be overridden by CLI flags.", v.(*string))
+	} else if len(value) > 0 {
+		config.Vars.VarsFile = value
+		log.Printf("[INFO] Config read from file '%v', but may still be overridden by CLI flags.", value)
 	} else {
 		log.Printf("[NOTICE] No configuration variables file specified. Using environment variabls and defaults only.")
 	}
 }
 
-// writeDirHandler
-func writeDirHandler(v interface{}) {
-	if len(*v.(*string)) > 0 {
+// WriteDirHandler changes the root output directory
+func WriteDirHandler(v *string) {
+	value := *v
+	if len(value) > 0 {
 		log.Printf("[NOTICE] Output Directory has been overridden via command line")
-		config.Vars.WriteDirectory = *v.(*string)
+		config.Vars.WriteDirectory = value
 	}
 }
 
-// loglevelHandler validates provided value and sets output accordingly
-func loglevelHandler(v interface{}) {
-	if len(*v.(*string)) > 0 {
+// LoglevelHandler validates provided value is a known loglevel and sets loglevel accordingly
+// TODO: does this still work with our new logger?
+func LoglevelHandler(v *string) {
+	value := *v
+	if len(value) > 0 {
 		levels := []string{"DEBUG", "INFO", "NOTICE", "WARN", "ERROR"}
-		_, found := utils.FindString(levels, *v.(*string))
+		_, found := utils.FindString(levels, value)
 		if !found {
-			log.Fatalf("[ERROR] Unknown loglevel specified: '%s'. Must be one of %v", *v.(*string), levels)
+			log.Fatalf("[ERROR] Unknown loglevel specified: '%s'. Must be one of %v", value, levels)
 		} else {
-			config.Vars.LogLevel = *v.(*string)
+			config.Vars.LogLevel = value
 			config.SetLogFilter(config.Vars.LogLevel, os.Stderr)
 		}
 	}
 }
 
-func resultsformatHandler(v interface{}) {
-	if len(*v.(*string)) > 0 {
+// ResultsformatHandler parses a flag and sets the godog output type
+func ResultsformatHandler(v *string) {
+	value := *v
+	if len(value) > 0 {
 		options := []string{"cucumber", "events", "junit", "pretty", "progress"}
-		_, found := utils.FindString(options, *v.(*string))
+		_, found := utils.FindString(options, value)
 		if !found {
-			log.Fatalf("[ERROR] Unknown resultsformat specified: '%s'. Must be one of %v", *v.(*string), options)
+			log.Fatalf("[ERROR] Unknown resultsformat specified: '%s'. Must be one of %v", value, options)
 		} else {
-			config.Vars.ResultsFormat = *v.(*string)
+			config.Vars.ResultsFormat = value
 			config.SetLogFilter(config.Vars.ResultsFormat, os.Stderr)
 		}
 	}
 }
 
-func tagsHandler(v interface{}) {
-	if len(*v.(*string)) > 0 {
-		config.Vars.Tags = *v.(*string)
+// TagsHandler parses a flag and sets the godog/cucumber tags
+func TagsHandler(v *string) {
+	value := *v
+	if len(value) > 0 {
+		config.Vars.Tags = value
 		log.Printf("[INFO] tags have been added via command line.")
 	}
 }
 
-func kubeConfigHandler(v interface{}) {
-	if len(*v.(*string)) > 0 {
-		config.Vars.ServicePacks.Kubernetes.KubeConfigPath = *v.(*string)
-		log.Printf("[NOTICE] Kubeconfig path has been overridden via command line")
-	}
-	if len(config.Vars.ServicePacks.Kubernetes.KubeConfigPath) == 0 {
-		log.Printf("[NOTICE] No kubeconfig path specified. Falling back to default paths.")
-	}
-}
-
-func silentHandler(v interface{}) {
-	config.Vars.Silent = isFlagPassed("silent")
-}
-
-func nosummaryHandler(v interface{}) {
-	config.Vars.NoSummary = isFlagPassed("nosummary")
-}
-
+// TODO: we might not need this anymore
 func isFlagPassed(flagName string) bool {
 	found := false
 	flag.Visit(func(f *flag.Flag) {
