@@ -1,45 +1,39 @@
 package cliflags
 
 import (
+	"fmt"
 	"os"
 	"testing"
-
-	"github.com/citihub/probr-sdk/config"
 )
 
-func TestHandleFlags(t *testing.T) {
+var testFuncOutput []string
 
-	// Note:
-	// This test is only verifying WriteDirectory cli flag.
-	// It could be extended to test other flags, or all. If so, it should be refactored to avoid code duplication. Keeping it simple for now (YAGNI).
+func testFunc(value *string) {
+	testFuncOutput = append(testFuncOutput, *value)
+}
 
-	tests := []struct {
-		testName                  string
-		addCliFlag                string
-		expectedResultInConfigVar string
-	}{
-		{
-			testName:                  "HandleFlag_WithCliFlag_ShouldAddCliFlagValueToGlobalConfig",
-			addCliFlag:                "-writedirectory=newdirectoryfromcliflag",
-			expectedResultInConfigVar: "newdirectoryfromcliflag",
-		},
+func TestFlags_ExecuteHandlers(t *testing.T) {
+	testArgs := make(map[string]string)
+	testArgs["runTestFunc"] = "set the test func value"
+	testArgs["runTestFunc2"] = "set another test func value"
+	testArgs["runTestFunc3"] = "be really redundant in this test"
+
+	for key, value := range testArgs {
+		os.Args = append(os.Args, fmt.Sprintf("-%s=%s", key, value))
 	}
-	for _, tt := range tests {
-		t.Run(tt.testName, func(t *testing.T) {
 
-			// Simulating cli arguments
-			os.Args = append(os.Args, "-writedirectory=newdirectoryfromcliflag")
+	var flags Flags
+	for key, _ := range testArgs {
+		flags.NewStringFlag(key, "no description", testFunc)
+	}
+	flags.ExecuteHandlers()
 
-			// This function is expected to modify global configVar object, setting values based on tags
-			// It cannot be called more than once, since global flag object is used and it would raise a "flag redefined" error.
-			// An alternative for a potential refactoring is to use FlagSet instead. See: https://stackoverflow.com/questions/24504024/defining-independent-flagsets-in-golang
-			HandleFlags()
-
-			//Check WriteDirectory was set in global ConfigVars
-			if config.Vars.WriteDirectory != tt.expectedResultInConfigVar {
-				t.Errorf("HandleFlags(); config.Vars.WiteDirectory = %v, Expected: %v", config.Vars.WriteDirectory, tt.expectedResultInConfigVar)
-				return
-			}
-		})
+	i := 0
+	for _, value := range testArgs {
+		if testFuncOutput[i] != value {
+			t.Errorf("Expected testArgs to contain '%s', but did not find it", value)
+			return
+		}
+		i = i + 1
 	}
 }
