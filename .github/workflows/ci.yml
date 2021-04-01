@@ -19,7 +19,8 @@ jobs:
             go mod download
             go get -u golang.org/x/lint/golint
             go get -t .
-    
+            go get github.com/mattn/go-isatty@v0.0.10
+                
     - name: Lint
       run: |
         golint -set_exit_status ./...
