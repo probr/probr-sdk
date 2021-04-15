@@ -44,7 +44,7 @@ func (s *summaryState) PrintSummary() {
 func (s *summaryState) WriteSummary() {
 	if config.Vars.AuditEnabled == "true" {
 		path := filepath.Join(config.Vars.GetWriteDirectory(), "summary.json")
-		if utils.WriteAllowed(path, config.Vars.Overwrite()) {
+		if utils.WriteAllowed(path) {
 			json, _ := json.MarshalIndent(s, "", "  ")
 			data := []byte(json)
 			ioutil.WriteFile(path, data, 0755)

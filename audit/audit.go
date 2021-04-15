@@ -40,7 +40,7 @@ type stepAudit struct {
 
 func (e *ProbeAudit) Write() {
 	if config.Vars.AuditEnabled == "true" && e.probeRan() {
-		if utils.WriteAllowed(e.path, config.Vars.Overwrite()) {
+		if utils.WriteAllowed(e.path) {
 			json, _ := json.MarshalIndent(e, "", "  ")
 			data := []byte(json)
 			ioutil.WriteFile(e.path, data, 0755)
