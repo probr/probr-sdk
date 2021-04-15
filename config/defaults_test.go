@@ -2,59 +2,136 @@ package config
 
 import (
 	"os"
+	"reflect"
 	"testing"
 )
 
-func Test_setFromEnvOrDefaults(t *testing.T) {
+const (
+	defaultValuePROBRWRITEDIRECTORY = "probr_output"
+	envVarValuePROBRWRITEDIRECTORY  = "ValueFromEnvVar_WriteDirectory"
+)
 
-	// Note:
-	// This test is only verifying WriteDirectory.
-	// It could be extended to test other config vars, or all. If so, it should be refactored to avoid code duplication. Keeping it simple for now (YAGNI).
+func Test_setFromEnvOrDefaults(t *testing.T) {
 
 	envVarCurrentValuePROBRWRITEDIRECTORY := os.Getenv("PROBR_WRITE_DIRECTORY") // Used to restore env to original state after test
 	defer func() {
 		os.Setenv("PROBR_WRITE_DIRECTORY", envVarCurrentValuePROBRWRITEDIRECTORY)
 	}()
-	defaultValuePROBRWRITEDIRECTORY := "probr_output"
-	envVarValuePROBRWRITEDIRECTORY := "ValueFromEnvVar_WriteDirectory"
 
-	type args struct {
-		e *VarOptions
-	}
 	tests := []struct {
 		testName                     string
-		testArgs                     args
-		setEnvVar                    bool
+		envVarValue                  string
 		expectedResultWriteDirectory string
 	}{
 		{
 			testName:                     "setFromEnvOrDefaults_GivenEnvVar_ShouldSetConfigVarToEnvVarValue",
-			testArgs:                     args{e: &VarOptions{}},
-			setEnvVar:                    true,
+			envVarValue:                  envVarValuePROBRWRITEDIRECTORY,
 			expectedResultWriteDirectory: envVarValuePROBRWRITEDIRECTORY,
 		},
 		{
 			testName:                     "setFromEnvOrDefaults_WithoutEnvVar_ShouldSetConfigVarToDefaultValue",
-			testArgs:                     args{e: &VarOptions{}},
-			setEnvVar:                    false,
+			envVarValue:                  "",
 			expectedResultWriteDirectory: defaultValuePROBRWRITEDIRECTORY,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.testName, func(t *testing.T) {
 
-			//Based on test case, modify env vars
-			if tt.setEnvVar {
-				os.Setenv("PROBR_WRITE_DIRECTORY", envVarValuePROBRWRITEDIRECTORY)
-			} else {
-				os.Setenv("PROBR_WRITE_DIRECTORY", "")
-			}
+			os.Setenv("PROBR_WRITE_DIRECTORY", tt.envVarValue)
 
-			setFromEnvOrDefaults(tt.testArgs.e) //This function will modify config object
+			vars := &VarOptions{}
+			setFromEnvOrDefaults(vars) //This function will modify config object
 
 			//Check WriteDirectory
-			if tt.testArgs.e.WriteDirectory != tt.expectedResultWriteDirectory {
-				t.Errorf("setFromEnvOrDefaults(); PROBR_WRITE_DIRECTORY = %v, Expected: %v", tt.testArgs.e.WriteDirectory, tt.expectedResultWriteDirectory)
+			if vars.WriteDirectory != tt.expectedResultWriteDirectory {
+				t.Errorf("setFromEnvOrDefaults(); PROBR_WRITE_DIRECTORY = %v, Expected: %v", vars.WriteDirectory, tt.expectedResultWriteDirectory)
+				return
+			}
+
+		})
+	}
+}
+
+func Test_setStringVar(t *testing.T) {
+
+	tests := []struct {
+		testName            string
+		varName             string
+		envVarValue         string
+		defaultValue        string
+		expectedReturnValue string
+	}{
+		{
+			testName:            "Test that set value is returned when provided",
+			varName:             "ENV_VAR_1",
+			envVarValue:         envVarValuePROBRWRITEDIRECTORY,
+			defaultValue:        defaultValuePROBRWRITEDIRECTORY,
+			expectedReturnValue: envVarValuePROBRWRITEDIRECTORY,
+		},
+		{
+			testName:            "Test that default value is returned when no value is provided",
+			varName:             "ENV_VAR_2",
+			envVarValue:         "",
+			defaultValue:        defaultValuePROBRWRITEDIRECTORY,
+			expectedReturnValue: defaultValuePROBRWRITEDIRECTORY,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.testName, func(t *testing.T) {
+			originalValue := os.Getenv(tt.varName) // Used to restore env to original state after test
+			defer func() {
+				os.Setenv(tt.varName, originalValue)
+			}()
+
+			os.Setenv(tt.varName, tt.envVarValue)
+
+			vars := &VarOptions{}
+			value := setStringVar(vars.WriteDirectory, tt.varName, tt.defaultValue)
+
+			if value != tt.expectedReturnValue {
+				t.Errorf("setFromEnvOrDefaults(); Return Value = %v, Expected: %v", value, tt.expectedReturnValue)
+				return
+			}
+
+		})
+	}
+}
+
+func Test_setStringSliceVar(t *testing.T) {
+	defaultValue := []string{"one", "one", "two", "three", "five", "eight"}
+
+	tests := []struct {
+		testName            string
+		varName             string
+		envVarValue         string
+		expectedReturnValue []string
+	}{
+		{
+			testName:            "Test that set value is returned when provided",
+			varName:             "ENV_VAR_1",
+			envVarValue:         "one,two,three,four",
+			expectedReturnValue: []string{"one", "two", "three", "four"},
+		},
+		{
+			testName:            "Test that default value is returned when no value is provided",
+			varName:             "ENV_VAR_2",
+			envVarValue:         "",
+			expectedReturnValue: defaultValue,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.testName, func(t *testing.T) {
+			originalValue := os.Getenv(tt.varName) // Used to restore env to original state after test
+			defer func() {
+				os.Setenv(tt.varName, originalValue)
+			}()
+
+			os.Setenv(tt.varName, tt.envVarValue)
+
+			value := setStringSliceVar([]string{}, tt.varName, defaultValue)
+
+			if !reflect.DeepEqual(value, tt.expectedReturnValue) {
+				t.Errorf("setFromEnvOrDefaults(); Return Value = %v, Expected: %v", value, tt.expectedReturnValue)
 				return
 			}
 
