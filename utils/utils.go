@@ -133,17 +133,14 @@ func AuditPlaceholders() (strings.Builder, interface{}, error) {
 	return *new(strings.Builder), *new(interface{}), *new(error)
 }
 
-// WriteAllowed determines whether a given filepath can be written, considering both permissions and overwrite flag
-func WriteAllowed(path string, overwrite bool) bool {
+// WriteAllowed determines whether a given filepath can be written to
+func WriteAllowed(path string) bool {
 	_, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0644)
-	if err == nil && overwrite == false {
-		//log.Printf("[ERROR] OverwriteHistoricalAudits is set to false, preventing this from writing to file: %s", path)
-		return false
-	} else if os.IsPermission(err) {
-		//log.Printf("[ERROR] Permissions prevent this from writing to file: %s", path)
+	if os.IsPermission(err) {
+		log.Printf("[ERROR] Permissions prevent this from writing to file: %s", path)
 		return false
 	} else if err != nil {
-		//log.Printf("[ERROR] Could not create or write to file: %s. Error: %s", path, err)
+		log.Printf("[ERROR] Could not create or write to file: %s. Error: %s", path, err)
 		return false
 	}
 	return true
