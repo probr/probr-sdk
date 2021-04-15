@@ -55,7 +55,7 @@ func homeDir() string {
 	return os.Getenv("USERPROFILE") // windows
 }
 
-// set fetches the env var or sets the default value as needed for the specified field from VarOptions
+// SetVar fetches the env var or sets the default value as needed for the specified field from VarOptions
 func SetVar(field interface{}, varName string, defaultValue interface{}) {
 	switch v := field.(type) {
 	default:
