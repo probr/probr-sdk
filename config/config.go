@@ -117,7 +117,7 @@ func (ctx *VarOptions) LogConfigState() {
 	json, _ := json.MarshalIndent(Vars, "", "  ")
 	//log.Printf("[INFO] Config State: %s", json)
 	path := filepath.Join(ctx.GetWriteDirectory(), "config.json")
-	if ctx.WriteConfig == "true" && utils.WriteAllowed(path, ctx.Overwrite()) {
+	if ctx.WriteConfig == "true" && utils.WriteAllowed(path) {
 		data := []byte(json)
 		ioutil.WriteFile(path, data, 0644)
 		//log.Printf("[NOTICE] Config State written to file %s", path)
