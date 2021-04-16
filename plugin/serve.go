@@ -19,11 +19,7 @@ const (
 // a hcplugin and host. If the handshake fails, a user friendly error is shown.
 // This prevents users from executing bad hcplugins or executing a hcplugin
 // directory. It is a UX feature, not a security feature.
-var handshakeConfig = hcplugin.HandshakeConfig{
-	ProtocolVersion:  1,
-	MagicCookieKey:   "PROBR_MAGIC_COOKIE",
-	MagicCookieValue: "probr.servicepack",
-}
+var handshakeConfig = GetHandshakeConfig()
 
 // ServeOpts are the configurations to serve a plugin.
 type ServeOpts struct {
@@ -74,4 +70,14 @@ func Serve(opts *ServeOpts) {
 		Plugins:         hcpluginMap,
 		Logger:          opts.Logger,
 	})
+}
+
+// GetHandshakeConfig provides handshake config details. It is used by core and service packs.
+func GetHandshakeConfig() hcplugin.HandshakeConfig {
+
+	return hcplugin.HandshakeConfig{
+		ProtocolVersion:  1,
+		MagicCookieKey:   "PROBR_MAGIC_COOKIE",
+		MagicCookieValue: "probr.servicepack",
+	}
 }
