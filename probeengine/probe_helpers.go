@@ -31,33 +31,6 @@ var cucumberDirFunc = config.Vars.CucumberDir // see TestGetOutputPath
 var getTmpFeatureFileFunc = getTmpFeatureFile // See TestGeatFeaturePath
 var tmpDirFunc = config.Vars.TmpDir           // See Test_getTmpFeatureFile
 
-// getRootDir gets the root directory of the probr executable.
-func getRootDir() (string, error) {
-	//TODO: fix this!! think it's a tad dodgy!
-	pwd, _ := os.Getwd()
-	log.Printf("[DEBUG] getRootDir pwd is: %v", pwd)
-
-	b := strings.Contains(pwd, rootDirName)
-	if !b {
-		return "", fmt.Errorf("could not find '%v' root directory in %v", rootDirName, pwd)
-	}
-
-	s := strings.SplitAfter(pwd, rootDirName)
-	log.Printf("[DEBUG] path(s) after splitting: %v\n", s)
-
-	if len(s) < 1 {
-		//expect at least one result
-		return "", fmt.Errorf("could not split out '%v' from directory in %v", rootDirName, pwd)
-	}
-
-	if !strings.HasSuffix(s[0], rootDirName) {
-		//the first path should end with "probr"
-		return "", fmt.Errorf("first path after split (%v) does not end with '%v'", s[0], rootDirName)
-	}
-
-	return s[0], nil
-}
-
 // getOutputPath gets the output path for the test based on the output directory
 // plus the test name supplied
 func getOutputPath(t string) (*os.File, error) {

@@ -28,14 +28,6 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func TestGetRootDir(t *testing.T) {
-	// Make sure it doesn't catch one of the several fail conditions
-	_, err := getRootDir()
-	if err != nil {
-		t.Fail()
-	}
-}
-
 func TestGetOutputPath(t *testing.T) {
 	var file *os.File
 
