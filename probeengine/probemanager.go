@@ -28,26 +28,6 @@ func (s ProbeStatus) String() string {
 	return [...]string{"Pending", "Running", "CompleteSuccess", "CompleteFail", "Error", "Excluded"}[s]
 }
 
-// Group type describes the group to which the test belongs, e.g. kubernetes, clouddriver, probeengine, etc.
-type Group int
-
-// Group type enumeration
-const (
-	Kubernetes Group = iota
-	CloudDriver
-	CoreEngine
-)
-
-func (g Group) String() string {
-	return [...]string{"kubernetes", "clouddriver", "probeengine"}[g]
-}
-
-// ProbeDescriptor describes the specific test case and includes name and group.
-type ProbeDescriptor struct {
-	Group Group  `json:"group,omitempty"`
-	Name  string `json:"name,omitempty"`
-}
-
 // ProbeStore maintains a collection of probes to be run and their status.  FailedProbes is an explicit
 // collection of failed probes.
 type ProbeStore struct {
@@ -73,10 +53,10 @@ func (ps *ProbeStore) AddProbe(preParsedProbe Probe) {
 	probe := makeGodogProbe(ps.Name, preParsedProbe)
 	status := Pending
 	probe.Status = &status
-	ps.Probes[probe.ProbeDescriptor.Name] = probe
+	ps.Probes[probe.Name] = probe
 
-	audit.State.GetProbeLog(probe.ProbeDescriptor.Name).Result = probe.Status.String()
-	audit.State.LogProbeMeta(probe.ProbeDescriptor.Name, "group", probe.ProbeDescriptor.Group.String())
+	audit.State.GetProbeLog(probe.Name).Result = probe.Status.String()
+	audit.State.LogProbeMeta(probe.Name, "group", probe.Pack)
 }
 
 // GetProbe returns the test identified by the given name.
@@ -125,9 +105,9 @@ func (ps *ProbeStore) ExecAllProbes() (int, error) {
 }
 
 func makeGodogProbe(pack string, p Probe) *GodogProbe {
-	descriptor := ProbeDescriptor{Group: Kubernetes, Name: p.Name()} //TODO: Hard dependency on Kubernetes group. This should be handled outside of SDK.
 	return &GodogProbe{
-		ProbeDescriptor:     &descriptor,
+		Name:                p.Name(),
+		Pack:                pack,
 		ProbeInitializer:    p.ProbeInitialize,
 		ScenarioInitializer: p.ScenarioInitialize,
 		FeaturePath:         p.Path(),

@@ -24,7 +24,7 @@ func GodogProbeHandler(probe *GodogProbe) (int, *bytes.Buffer, error) {
 }
 
 func toFileGodogProbeHandler(gd *GodogProbe) (int, *bytes.Buffer, error) {
-	o, err := getOutputPath(gd.ProbeDescriptor.Name)
+	o, err := getOutputPath(gd.Name)
 	if err != nil {
 		return -1, nil, err
 	}
@@ -65,7 +65,7 @@ func runTestSuite(o io.Writer, gd *GodogProbe) (int, error) {
 	}
 
 	status := godog.TestSuite{
-		Name:                 gd.ProbeDescriptor.Name,
+		Name:                 gd.Name,
 		TestSuiteInitializer: gd.ProbeInitializer,
 		ScenarioInitializer:  gd.ScenarioInitializer,
 		Options:              &opts,

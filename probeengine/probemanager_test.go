@@ -59,7 +59,7 @@ func TestAddProbe(t *testing.T) {
 	if ps.Probes[probeName] == nil {
 		t.Logf("Probe not added to probe store")
 		t.Fail()
-	} else if ps.Probes[probeName].ProbeDescriptor.Name != probeName {
+	} else if ps.Probes[probeName].Name != probeName {
 		t.Logf("Probe name not set properly in test store")
 		t.Fail()
 	}
@@ -75,7 +75,7 @@ func TestGetProbe(t *testing.T) {
 		t.Logf(err.Error())
 		t.Fail()
 	}
-	if retrievedProbe.ProbeDescriptor.Name != probe.Name() {
+	if retrievedProbe.Name != probe.Name() {
 		t.Logf("Retrieved probe does not match added probe")
 		t.Fail()
 	}
