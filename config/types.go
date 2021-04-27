@@ -35,7 +35,6 @@ type ServicePacks struct {
 
 // Kubernetes config options
 type Kubernetes struct {
-	exclusionLogged                   bool
 	KeepPods                          string   `yaml:"KeepPods"` // TODO: Change type to bool, this would allow us to remove logic from kubernetes.GetKeepPodsFromConfig()
 	Probes                            []Probe  `yaml:"Probes"`
 	KubeConfigPath                    string   `yaml:"KubeConfig"`
@@ -62,16 +61,14 @@ type K8sAzure struct {
 
 // Storage service pack config options
 type Storage struct {
-	exclusionLogged bool
-	Provider        string  `yaml:"Provider"` // Placeholder!
-	Probes          []Probe `yaml:"Probes"`
+	Provider string  `yaml:"Provider"` // Placeholder!
+	Probes   []Probe `yaml:"Probes"`
 }
 
 // APIM service pack config options
 type APIM struct {
-	exclusionLogged bool
-	Provider        string  `yaml:"Provider"` // Placeholder!
-	Probes          []Probe `yaml:"Probes"`
+	Provider string  `yaml:"Provider"` // Placeholder!
+	Probes   []Probe `yaml:"Probes"`
 }
 
 // Probe config options

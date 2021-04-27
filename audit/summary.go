@@ -31,13 +31,9 @@ func init() {
 
 // PrintSummary will print the current Probes object state, formatted to JSON, if NoSummary is not "true"
 func (s *summaryState) PrintSummary() {
-	if config.Vars.NoSummary == true {
-		log.Printf("[NOTICE] Summary Log suppressed by configuration NoSummary=true.")
-	} else {
-		summary, _ := json.MarshalIndent(s, "", "  ")
-		json.MarshalIndent(s, "", "  ")
-		log.Printf("Finished\n%s", summary) // Summary output should not be handled by log levels
-	}
+	summary, _ := json.MarshalIndent(s, "", "  ")
+	json.MarshalIndent(s, "", "  ")
+	log.Printf("Finished\n%s", summary) // Summary output should not be handled by log levels
 }
 
 // WriteSummary will write the summary to the audit directory

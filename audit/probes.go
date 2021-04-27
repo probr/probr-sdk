@@ -45,15 +45,15 @@ func (e *Probe) InitializeAuditor(name string, tags []*messages.Pickle_PickleTag
 	if e.audit.Scenarios == nil {
 		e.audit.Scenarios = make(map[int]*ScenarioAudit)
 	}
-	scenarioCounter := len(e.audit.Scenarios) + 1
+	i := len(e.audit.Scenarios) + 1
 	var t []string
 	for _, tag := range tags {
 		t = append(t, tag.Name)
 	}
-	e.audit.Scenarios[scenarioCounter] = &ScenarioAudit{
+	e.audit.Scenarios[i] = &ScenarioAudit{
 		Name:  name,
 		Steps: make(map[int]*stepAudit),
 		Tags:  t,
 	}
-	return e.audit.Scenarios[scenarioCounter]
+	return e.audit.Scenarios[i]
 }
