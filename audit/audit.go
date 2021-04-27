@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"github.com/citihub/probr-sdk/config"
 	"github.com/citihub/probr-sdk/utils"
 )
 
@@ -39,12 +38,10 @@ type stepAudit struct {
 }
 
 func (e *ProbeAudit) Write() {
-	if config.Vars.AuditEnabled == "true" && e.probeRan() {
-		if utils.WriteAllowed(e.path) {
-			json, _ := json.MarshalIndent(e, "", "  ")
-			data := []byte(json)
-			ioutil.WriteFile(e.path, data, 0755)
-		}
+	if e.probeRan() && utils.WriteAllowed(e.path) {
+		json, _ := json.MarshalIndent(e, "", "  ")
+		data := []byte(json)
+		ioutil.WriteFile(e.path, data, 0755)
 	}
 }
 
@@ -63,7 +60,6 @@ func (p *ScenarioAudit) AuditScenarioStep(stepName, description string, payload 
 }
 
 func (p *ScenarioAudit) audit(functionName string, stepName string, description string, payload interface{}, err error) {
-	// TODO: This function should replace audit. Added here to avoid breaking existing probes.
 	stepNumber := len(p.Steps) + 1
 	p.Steps[stepNumber] = &stepAudit{
 		Function:    functionName,
@@ -84,6 +80,7 @@ func (p *ScenarioAudit) audit(functionName string, stepName string, description 
 		}
 	}
 }
+
 func (e *ProbeAudit) probeRan() bool {
 	if len(e.Scenarios) > 0 {
 		return true

@@ -219,9 +219,9 @@ func TestSummaryState_completeProbe(t *testing.T) {
 	var mockSummaryState = createSummaryStateWithMockProbe(probeName)
 
 	mockSummaryState.Probes[probeName].audit.Scenarios = make(map[int]*ScenarioAudit)
-	scenarioCounter := len(mockSummaryState.Probes[probeName].audit.Scenarios) + 1
+	i := len(mockSummaryState.Probes[probeName].audit.Scenarios) + 1
 	mockSummaryState.Probes[probeName].Result = "Excluded"
-	mockSummaryState.Probes[probeName].audit.Scenarios[scenarioCounter] = &ScenarioAudit{
+	mockSummaryState.Probes[probeName].audit.Scenarios[i] = &ScenarioAudit{
 		Name:  "scena1",
 		Steps: make(map[int]*stepAudit),
 		Tags:  []string{"scenario"},
