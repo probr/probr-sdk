@@ -8,7 +8,7 @@ import (
 	"log"
 	"sync"
 
-	"github.com/citihub/probr-sdk/audit"
+	audit "github.com/citihub/probr-sdk/audit"
 )
 
 // ProbeStatus type describes the status of the test, e.g. Pending, Running, CompleteSuccess, CompleteFail and Error
@@ -35,14 +35,26 @@ type ProbeStore struct {
 	Probes       map[string]*GodogProbe
 	FailedProbes map[ProbeStatus]*GodogProbe
 	Lock         sync.RWMutex
+	Summary      *audit.SummaryState
 }
 
 // NewProbeStore creates a new object to store GodogProbes
-func NewProbeStore(name string) *ProbeStore {
+func NewProbeStore(name string, summaryState *audit.SummaryState) *ProbeStore {
 	return &ProbeStore{
-		Name:   name,
-		Probes: make(map[string]*GodogProbe),
+		Name:    name,
+		Probes:  make(map[string]*GodogProbe),
+		Summary: summaryState,
 	}
+}
+
+// RunAllProbes retrieves and executes all probes that have been included
+func (ps *ProbeStore) RunAllProbes(probes []Probe) (int, error) {
+	for _, probe := range probes {
+		ps.AddProbe(probe)
+	}
+
+	s, err := ps.ExecAllProbes() // Executes all added (queued) tests
+	return s, err
 }
 
 // AddProbe provided GodogProbe to the ProbeStore.
@@ -55,8 +67,8 @@ func (ps *ProbeStore) AddProbe(preParsedProbe Probe) {
 	probe.Status = &status
 	ps.Probes[probe.Name] = probe
 
-	audit.State.GetProbeLog(probe.Name).Result = probe.Status.String()
-	audit.State.LogProbeMeta(probe.Name, "group", probe.Pack)
+	ps.Summary.GetProbeLog(probe.Name).Result = probe.Status.String()
+	ps.Summary.LogProbeMeta(probe.Name, "group", probe.Pack)
 }
 
 // GetProbe returns the test identified by the given name.
@@ -92,7 +104,7 @@ func (ps *ProbeStore) ExecAllProbes() (int, error) {
 
 	for name := range ps.Probes {
 		st, err := ps.ExecProbe(name)
-		audit.State.ProbeComplete(name)
+		ps.Summary.ProbeComplete(name)
 		if err != nil {
 			//log but continue with remaining probe
 			log.Printf("[ERROR] error executing probe: %v", err)
