@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/citihub/probr-sdk/audit"
 	"github.com/citihub/probr-sdk/config"
 	"github.com/cucumber/godog"
 )
@@ -36,7 +35,7 @@ type GodogProbe struct {
 func (ps *ProbeStore) RunProbe(probe *GodogProbe) (int, error) {
 
 	if probe == nil {
-		audit.State.GetProbeLog(probe.Name).Result = "Internal Error - Probe not found"
+		ps.Summary.GetProbeLog(probe.Name).Result = "Internal Error - Probe not found"
 		return 2, fmt.Errorf("probe is nil - cannot run test")
 	}
 
@@ -52,18 +51,6 @@ func (ps *ProbeStore) RunProbe(probe *GodogProbe) (int, error) {
 
 	probe.Results = o // If in-mem output provided, store as Results
 	return s, err
-}
-
-// RunAllProbes retrieves and executes all probes that have been included
-func RunAllProbes(packName string, probes []Probe) (int, *ProbeStore, error) {
-	ts := NewProbeStore(packName)
-
-	for _, probe := range probes {
-		ts.AddProbe(probe)
-	}
-
-	s, err := ts.ExecAllProbes() // Executes all added (queued) tests
-	return s, ts, err
 }
 
 //GetAllProbeResults maps ProbeStore results to strings

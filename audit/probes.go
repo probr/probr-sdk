@@ -7,31 +7,28 @@ import (
 // Probe is passed through various functions to audit the probe's progress
 type Probe struct {
 	name               string
-	audit              *ProbeAudit
 	Meta               map[string]interface{}
-	PodsCreated        int
-	PodsDestroyed      int
+	Path               string
 	ScenariosAttempted int
 	ScenariosSucceeded int
 	ScenariosFailed    int
 	Result             string
+	Scenarios          map[int]*Scenario
 }
 
-// CountPodCreated increments pods_created for probe
-func (e *Probe) CountPodCreated(podName string) {
-	State.LogPodName(podName)
-	e.PodsCreated = e.PodsCreated + 1
-}
-
-// CountPodDestroyed increments pods_destroyed for probe
-func (e *Probe) CountPodDestroyed() {
-	e.PodsDestroyed = e.PodsDestroyed + 1
+type limitedProbe struct {
+	Meta               map[string]interface{} `json:"Meta"`
+	Path               string                 `json:"Path"`
+	ScenariosAttempted int                    `json:"ScenariosAttempted"`
+	ScenariosSucceeded int                    `json:"ScenariosSucceeded"`
+	ScenariosFailed    int                    `json:"ScenariosFailed"`
+	Result             string                 `json:"Result"`
 }
 
 // countResults stores the current total number of failures as e.ScenariosFailed. Run at probe end
 func (e *Probe) countResults() {
-	e.ScenariosAttempted = len(e.audit.Scenarios)
-	for _, v := range e.audit.Scenarios {
+	e.ScenariosAttempted = len(e.Scenarios)
+	for _, v := range e.Scenarios {
 		if v.Result == "Failed" {
 			e.ScenariosFailed = e.ScenariosFailed + 1
 		} else if v.Result == "Passed" {
@@ -41,19 +38,19 @@ func (e *Probe) countResults() {
 }
 
 // InitializeAuditor creates a new audit entry for the specified scenario
-func (e *Probe) InitializeAuditor(name string, tags []*messages.Pickle_PickleTag) *ScenarioAudit {
-	if e.audit.Scenarios == nil {
-		e.audit.Scenarios = make(map[int]*ScenarioAudit)
+func (e *Probe) InitializeAuditor(name string, tags []*messages.Pickle_PickleTag) *Scenario {
+	if e.Scenarios == nil {
+		e.Scenarios = make(map[int]*Scenario)
 	}
-	i := len(e.audit.Scenarios) + 1
+	i := len(e.Scenarios) + 1
 	var t []string
 	for _, tag := range tags {
 		t = append(t, tag.Name)
 	}
-	e.audit.Scenarios[i] = &ScenarioAudit{
+	e.Scenarios[i] = &Scenario{
 		Name:  name,
-		Steps: make(map[int]*stepAudit),
+		Steps: make(map[int]*step),
 		Tags:  t,
 	}
-	return e.audit.Scenarios[i]
+	return e.Scenarios[i]
 }

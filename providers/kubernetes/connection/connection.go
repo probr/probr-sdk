@@ -11,7 +11,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/citihub/probr-sdk/audit"
 	"github.com/citihub/probr-sdk/config"
 	"github.com/citihub/probr-sdk/providers/kubernetes/errors"
 	"github.com/citihub/probr-sdk/utils"
@@ -135,7 +134,6 @@ func (connection *Conn) CreatePodFromObject(pod *apiv1.Pod, probeName string) (*
 		log.Printf("[INFO] Attempt to create pod '%v' failed with error: '%v'", podName, err)
 	} else {
 		log.Printf("[INFO] Attempt to create pod '%v' succeeded", podName)
-		audit.State.GetProbeLog(probeName).CountPodCreated(podName)
 	}
 	return res, err
 }
@@ -153,7 +151,6 @@ func (connection *Conn) DeletePodIfExists(podName, namespace, probeName string) 
 	if err != nil {
 		return err
 	}
-	audit.State.GetProbeLog(probeName).CountPodDestroyed()
 	log.Printf("[INFO] POD %s deleted.", podName)
 	return nil
 }
@@ -284,7 +281,6 @@ func (connection *Conn) CreatePVCFromObject(pvc *apiv1.PersistentVolumeClaim, pr
 		log.Printf("[INFO] Attempt to create pod '%v' failed with error: '%v'", pvcName, err)
 	} else {
 		log.Printf("[INFO] Attempt to create pod '%v' succeeded", pvcName)
-		audit.State.GetProbeLog(probeName).CountPodCreated(pvcName)
 	}
 	return res, err
 }
@@ -314,7 +310,6 @@ func (connection *Conn) DeletePVCIfExists(pvcName, namespace, probeName string) 
 	if err != nil {
 		return err
 	}
-	audit.State.GetProbeLog(probeName).CountPodDestroyed()
 	log.Printf("[INFO] PVC %s deleted.", pvcName)
 	return nil
 }

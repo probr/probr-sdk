@@ -2,6 +2,7 @@
 package utils
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -29,6 +30,12 @@ func StringPtr(s string) *string {
 // Int64Ptr returns a pointer to an int64
 func Int64Ptr(i int64) *int64 {
 	return &i
+}
+
+// JSON marshals a struct into JSON with indentation
+func JSON(data interface{}) []byte {
+	j, _ := json.MarshalIndent(data, "", "  ")
+	return []byte(j)
 }
 
 // FindString searches a []string for a specific value.
