@@ -72,11 +72,9 @@ func (s *SummaryState) summary() []byte {
 
 // SetProbrStatus evaluates the current SummaryState state to set the Status
 func (s *SummaryState) SetProbrStatus() {
-	if s.ProbesPassed > 0 && s.ProbesFailed == 0 {
-		s.Status = "Complete - All Probes Completed Successfully"
-	} else {
-		s.Status = fmt.Sprintf("Complete - %v of %v Probes Failed", s.ProbesFailed, (len(s.Probes) - s.ProbesSkipped))
-	}
+	attempted := (len(s.Probes) - s.ProbesSkipped)
+	succeeded := (attempted - s.ProbesFailed)
+	s.Status = fmt.Sprintf("Complete - %d/%d Succeeded (%d Skipped)", succeeded, attempted, s.ProbesSkipped)
 }
 
 // LogProbeMeta accepts a test name with a key and value to insert to the meta logs for that test. Overwrites key if already present.

@@ -113,6 +113,7 @@ func (ps *ProbeStore) ExecAllProbes() (int, error) {
 			status = st
 		}
 	}
+	ps.Summary.SetProbrStatus()
 	return status, err
 }
 
