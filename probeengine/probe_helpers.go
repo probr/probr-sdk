@@ -10,6 +10,7 @@ import (
 
 	"github.com/cucumber/godog"
 
+	sdk "github.com/citihub/probr-sdk"
 	"github.com/citihub/probr-sdk/config"
 	"github.com/citihub/probr-sdk/utils"
 )
@@ -28,8 +29,7 @@ var outputDir *string
 
 // These variables points to the functions. they are used in oder to be able to mock oiginal behavior during testing.
 var cucumberDirFunc = config.Vars.CucumberDir // see TestGetOutputPath
-var getTmpFeatureFileFunc = getTmpFeatureFile // See TestGeatFeaturePath
-var tmpDirFunc = config.Vars.TmpDir           // See Test_getTmpFeatureFile
+var getTmpFeatureFileFunc = getTmpFeatureFile // See TestGetFeaturePath
 
 // getOutputPath gets the output path for the test based on the output directory
 // plus the test name supplied
@@ -67,7 +67,7 @@ func GetFeaturePath(path ...string) string {
 // If so returns the file path, otherwise unpacks the original file using pkger and copies it to -tmp- location before returning file path.
 func getTmpFeatureFile(featurePath string) (string, error) {
 
-	tmpFeaturePath := filepath.Join(tmpDirFunc(), featurePath)
+	tmpFeaturePath := filepath.Join(sdk.GlobalConfig.TmpDir, featurePath)
 
 	// If file already exists return it
 	_, e := os.Stat(tmpFeaturePath)

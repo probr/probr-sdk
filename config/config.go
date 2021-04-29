@@ -125,13 +125,6 @@ func (ctx *VarOptions) LogConfigState() {
 	}
 }
 
-// TmpDir creates and returns -tmp- directory within WriteDirectory
-func (ctx *VarOptions) TmpDir() string {
-	tmpDir := filepath.Join(ctx.GetWriteDirectory(), "tmp")
-	_ = os.MkdirAll(tmpDir, 0755) // Creates if not already existing
-	return tmpDir
-}
-
 // Overwrite returns the string value of the OverwriteHistoricalAudits in bool format
 func (ctx *VarOptions) Overwrite() bool {
 	value, err := strconv.ParseBool(ctx.OverwriteHistoricalAudits)
