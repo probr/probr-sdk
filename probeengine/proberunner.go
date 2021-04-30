@@ -29,6 +29,7 @@ type GodogProbe struct {
 	FeaturePath         string
 	Status              *ProbeStatus
 	Results             *bytes.Buffer
+	Tags                string
 }
 
 // RunProbe runs the test cases described by the supplied Probe

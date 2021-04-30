@@ -36,14 +36,16 @@ type ProbeStore struct {
 	FailedProbes map[ProbeStatus]*GodogProbe
 	Lock         sync.RWMutex
 	Summary      *audit.SummaryState
+	Tags         string
 }
 
 // NewProbeStore creates a new object to store GodogProbes
-func NewProbeStore(name string, summaryState *audit.SummaryState) *ProbeStore {
+func NewProbeStore(name string, tags string, summaryState *audit.SummaryState) *ProbeStore {
 	return &ProbeStore{
 		Name:    name,
 		Probes:  make(map[string]*GodogProbe),
 		Summary: summaryState,
+		Tags:    tags,
 	}
 }
 
@@ -62,7 +64,7 @@ func (ps *ProbeStore) AddProbe(preParsedProbe Probe) {
 	ps.Lock.Lock()
 	defer ps.Lock.Unlock()
 
-	probe := makeGodogProbe(ps.Name, preParsedProbe)
+	probe := ps.makeGodogProbe(ps.Name, preParsedProbe)
 	status := Pending
 	probe.Status = &status
 	ps.Probes[probe.Name] = probe
@@ -117,12 +119,13 @@ func (ps *ProbeStore) ExecAllProbes() (int, error) {
 	return status, err
 }
 
-func makeGodogProbe(pack string, p Probe) *GodogProbe {
+func (ps *ProbeStore) makeGodogProbe(pack string, probe Probe) *GodogProbe {
 	return &GodogProbe{
-		Name:                p.Name(),
+		Name:                probe.Name(),
 		Pack:                pack,
-		ProbeInitializer:    p.ProbeInitialize,
-		ScenarioInitializer: p.ScenarioInitialize,
-		FeaturePath:         p.Path(),
+		ProbeInitializer:    probe.ProbeInitialize,
+		ScenarioInitializer: probe.ScenarioInitialize,
+		FeaturePath:         probe.Path(),
+		Tags:                ps.Tags,
 	}
 }
