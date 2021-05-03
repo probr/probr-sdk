@@ -124,6 +124,8 @@ func ResultsformatHandler(v *string) {
 			config.Vars.ResultsFormat = value
 			config.SetLogFilter(config.Vars.ResultsFormat, os.Stderr)
 		}
+	} else {
+		value = "cucumber" // default
 	}
 }
 
