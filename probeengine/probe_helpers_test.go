@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	sdk "github.com/citihub/probr-sdk"
-	"github.com/citihub/probr-sdk/config"
 	"github.com/citihub/probr-sdk/utils"
 	"github.com/cucumber/godog"
 )
@@ -39,9 +38,6 @@ func TestGetOutputPath(t *testing.T) {
 	f := "test_file"
 	desiredFile := filepath.Join(d, f) + ".json"
 	defer func() {
-
-		cucumberDirFunc = config.Vars.CucumberDir //Restoring to original function after test
-
 		// Cleanup test assets
 		file.Close()
 		err := os.RemoveAll(d)

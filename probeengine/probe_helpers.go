@@ -11,7 +11,6 @@ import (
 	"github.com/cucumber/godog"
 
 	sdk "github.com/citihub/probr-sdk"
-	"github.com/citihub/probr-sdk/config"
 	"github.com/citihub/probr-sdk/utils"
 )
 
@@ -23,12 +22,14 @@ type Probe interface {
 	Path() string
 }
 
-const rootDirName = "probr"
+// This is a var-func in order to be able to mock oiginal behavior during testing.
+var cucumberDirFunc = func() string {
+	cucumberDir := filepath.Join(sdk.GlobalConfig.OutputDir(), "cucumber")
+	_ = os.MkdirAll(cucumberDir, 0755) // Creates if not already existing
+	return cucumberDir
+}
 
-var outputDir *string
-
-// These variables points to the functions. they are used in oder to be able to mock oiginal behavior during testing.
-var cucumberDirFunc = config.Vars.CucumberDir // see TestGetOutputPath
+// see TestGetOutputPath
 var getTmpFeatureFileFunc = getTmpFeatureFile // See TestGetFeaturePath
 
 // getOutputPath gets the output path for the test based on the output directory

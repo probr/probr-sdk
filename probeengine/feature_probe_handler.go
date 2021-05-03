@@ -9,17 +9,11 @@ import (
 	"github.com/cucumber/godog"
 	"github.com/cucumber/godog/colors"
 
-	"github.com/citihub/probr-sdk/config"
+	sdk "github.com/citihub/probr-sdk"
 )
 
-// GodogProbeHandler is a general implementation of ProbeHandlerFunc.  Based on the
-// output type, the test will either be executed using an in-memory or file output.  In
-// both cases, the handler uses the data supplied in GodogProbe to call the underlying
-// GoDog test suite.
+// GodogProbeHandler is a wrapper to allow for multiple probe handlers in the future
 func GodogProbeHandler(probe *GodogProbe) (int, *bytes.Buffer, error) {
-	if config.Vars.OutputType == "INMEM" {
-		return inMemGodogProbeHandler(probe)
-	}
 	return toFileGodogProbeHandler(probe)
 }
 
@@ -48,16 +42,18 @@ func toFileGodogProbeHandler(gd *GodogProbe) (int, *bytes.Buffer, error) {
 	return status, nil, err
 }
 
-func inMemGodogProbeHandler(gd *GodogProbe) (int, *bytes.Buffer, error) {
-	var t []byte
-	o := bytes.NewBuffer(t)
-	status, err := runTestSuite(o, gd)
-	return status, o, err
-}
+// Not currently in use, but leave this here for future reference
+// This is how we might use probes within an application instead of CLI runtime
+// func inMemGodogProbeHandler(gd *GodogProbe) (int, *bytes.Buffer, error) {
+// 	var t []byte
+// 	o := bytes.NewBuffer(t)
+// 	status, err := runTestSuite(o, gd)
+// 	return status, o, err
+// }
 
 func runTestSuite(o io.Writer, gd *GodogProbe) (int, error) {
 	opts := godog.Options{
-		Format: config.Vars.ResultsFormat,
+		Format: sdk.GlobalConfig.GodogResultsFormat,
 		Output: colors.Colored(o),
 		Paths:  []string{gd.FeaturePath},
 		Tags:   gd.Tags,
