@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/citihub/probr-sdk/config"
 	"github.com/citihub/probr-sdk/utils"
 	apiv1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -31,7 +30,7 @@ type PersistentVolumeClaimConfig struct {
 }
 
 // PodSpec constructs a simple pod object
-func PodSpec(baseName string, namespace string) *apiv1.Pod {
+func PodSpec(baseName, namespace, image string) *apiv1.Pod {
 	name := strings.Replace(baseName, "_", "-", -1)
 	podName := uniquePodName(name)
 	containerName := fmt.Sprintf("%s-probe-pod", name)
@@ -54,7 +53,7 @@ func PodSpec(baseName string, namespace string) *apiv1.Pod {
 			Containers: []apiv1.Container{
 				{
 					Name:            containerName,
-					Image:           DefaultProbrImageName(),
+					Image:           image,
 					ImagePullPolicy: apiv1.PullIfNotPresent,
 					Command:         DefaultEntrypoint(),
 					SecurityContext: DefaultContainerSecurityContext(),
@@ -86,15 +85,6 @@ func DefaultPodSecurityContext() *apiv1.PodSecurityContext {
 		RunAsGroup:         utils.Int64Ptr(3000),
 		SupplementalGroups: []int64{1},
 	}
-}
-
-// DefaultProbrImageName joins the registry and image name specified in config vars
-func DefaultProbrImageName() string {
-	// Service pack will not start without these vars, so we can rely on them being present
-	return fmt.Sprintf(
-		"%s/%s",
-		config.Vars.ServicePacks.Kubernetes.AuthorisedContainerRegistry,
-		config.Vars.ServicePacks.Kubernetes.ProbeImage)
 }
 
 // DefaultEntrypoint is used by all default pods
@@ -177,7 +167,7 @@ func uniquePodName(baseName string) string {
 	//take base and add some uniqueness
 	t := time.Now()
 	rand.Seed(t.UnixNano())
-	uniq := fmt.Sprintf("%v-%v", t.Format("020106-150405"), rand.Intn(100))
+	uniq := fmt.Sprintf("%v-%v%v", t.Format("020106-150405"), rand.Intn(100), rand.Intn(100))
 
 	return fmt.Sprintf("%v-%v", baseName, uniq)
 }
