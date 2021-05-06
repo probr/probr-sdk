@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/citihub/probr-sdk/config/setter"
@@ -87,4 +88,39 @@ func (ctx *GlobalOpts) setEnvAndDefaults() {
 	setter.SetVar(&ctx.GodogResultsFormat, "PROBR_RESULTS_FORMAT", "cucumber")
 
 	ctx.CloudProviders.Azure.SetEnvAndDefaults()
+}
+
+// ParseTags takes two lists of tags and parses them into a cucumber tag string
+// Tags may start with '@' or '~@' respectively, but it is not required
+func ParseTags(inclusions, exclusions []string) string {
+	var tags []string
+	if len(inclusions) > 0 {
+		tags = append(tags, parseInclusions(inclusions))
+	}
+	if len(exclusions) > 0 {
+		tags = append(tags, parseExclusions(exclusions))
+	}
+	// If only one is provided, this joiner won't be used
+	return strings.Join(tags, " && ")
+}
+
+func parseInclusions(inclusions []string) string {
+	inclusions = prependTags(inclusions, "@")
+	return strings.Join(inclusions, ",")
+}
+
+func parseExclusions(exclusions []string) string {
+	exclusions = prependTags(exclusions, "~@")
+	return strings.Join(exclusions, " && ")
+}
+
+func prependTags(tags []string, prefix string) []string {
+	for i, value := range tags {
+		// ensure value is not empty, then force it to begin with prefix
+		// prefix value is expected to not be found anywhere but as the prefix
+		if len(value) > 0 && !strings.Contains(value, prefix) {
+			tags[i] = prefix + value
+		}
+	}
+	return tags
 }
