@@ -12,6 +12,7 @@ type VarOptions struct {
 	LogLevel                  string         `yaml:"LogLevel"`
 	OverwriteHistoricalAudits string         `yaml:"OverwriteHistoricalAudits"`
 	TagExclusions             []string       `yaml:"TagExclusions"`
+	TagInclusions             []string       `yaml:"TagInclusions"`
 	WriteConfig               string         `yaml:"WriteConfig"`
 	Tags                      string         // set by flags
 	VarsFile                  string         // set by flags only
@@ -82,23 +83,6 @@ type Probe struct {
 type Scenario struct {
 	Name     string `yaml:"Name"`
 	Excluded string `yaml:"Excluded"`
-}
-
-// CloudProviders config options
-type CloudProviders struct {
-	Azure Azure `yaml:"Azure"`
-}
-
-// Azure config options that may be required by any service pack
-type Azure struct {
-	Excluded         string `yaml:"Excluded"`
-	TenantID         string `yaml:"TenantID"`
-	SubscriptionID   string `yaml:"SubscriptionID"`
-	ClientID         string `yaml:"ClientID"`
-	ClientSecret     string `yaml:"ClientSecret"`
-	ResourceGroup    string `yaml:"ResourceGroup"`
-	ResourceLocation string `yaml:"ResourceLocation"`
-	ManagementGroup  string `yaml:"ManagementGroup"`
 }
 
 // Excludable is used for testing purposes only
