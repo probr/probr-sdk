@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/citihub/probr-sdk/config/setter"
+	azureconfig "github.com/citihub/probr-sdk/providers/azure/config"
 	"github.com/citihub/probr-sdk/utils"
 )
 
@@ -14,19 +16,7 @@ var GlobalConfig GlobalOpts
 
 // CloudProviders config options
 type CloudProviders struct {
-	Azure Azure `yaml:"Azure"`
-}
-
-// Azure config options that may be required by any service pack
-type Azure struct {
-	Excluded         string `yaml:"Excluded"`
-	TenantID         string `yaml:"TenantID"`
-	SubscriptionID   string `yaml:"SubscriptionID"`
-	ClientID         string `yaml:"ClientID"`
-	ClientSecret     string `yaml:"ClientSecret"`
-	ResourceGroup    string `yaml:"ResourceGroup"`
-	ResourceLocation string `yaml:"ResourceLocation"`
-	ManagementGroup  string `yaml:"ManagementGroup"`
+	Azure azureconfig.Azure `yaml:"Azure"`
 }
 
 // GlobalOpts provides configurable options that will be used throughout the SDK
@@ -89,17 +79,12 @@ func (ctx *GlobalOpts) setEnvAndDefaults() {
 	// 3. Default value to set if flags, vars file, and env have not provided a value
 
 	home, _ := os.UserHomeDir()
-	SetVar(&ctx.InstallDir, "PROBR_RESULTS_FORMAT", filepath.Join(home, "probr"))
+	setter.SetVar(&ctx.InstallDir, "PROBR_RESULTS_FORMAT", filepath.Join(home, "probr"))
 
-	SetVar(&ctx.TmpDir, "PROBR_RESULTS_FORMAT", "cucumber")
-	SetVar(&ctx.WriteDirectory, "PROBR_WRITE_DIRECTORY", "probr_output")
-	SetVar(&ctx.LogLevel, "PROBR_LOG_LEVEL", "DEBUG")
-	SetVar(&ctx.GodogResultsFormat, "PROBR_RESULTS_FORMAT", "cucumber")
+	setter.SetVar(&ctx.TmpDir, "PROBR_RESULTS_FORMAT", "cucumber")
+	setter.SetVar(&ctx.WriteDirectory, "PROBR_WRITE_DIRECTORY", "probr_output")
+	setter.SetVar(&ctx.LogLevel, "PROBR_LOG_LEVEL", "DEBUG")
+	setter.SetVar(&ctx.GodogResultsFormat, "PROBR_RESULTS_FORMAT", "cucumber")
 
-	SetVar(&ctx.CloudProviders.Azure.TenantID, "PROBR_AZURE_TENANT_ID", "")
-	SetVar(&ctx.CloudProviders.Azure.SubscriptionID, "PROBR_AZURE_SUBSCRIPTION_ID", "")
-	SetVar(&ctx.CloudProviders.Azure.ClientID, "PROBR_AZURE_CLIENT_ID", "")
-	SetVar(&ctx.CloudProviders.Azure.ClientSecret, "PROBR_AZURE_CLIENT_SECRET", "")
-	SetVar(&ctx.CloudProviders.Azure.ResourceGroup, "PROBR_AZURE_RESOURCE_GROUP", "")
-	SetVar(&ctx.CloudProviders.Azure.ResourceLocation, "PROBR_AZURE_RESOURCE_LOCATION", "")
+	ctx.CloudProviders.Azure.SetEnvAndDefaults()
 }
