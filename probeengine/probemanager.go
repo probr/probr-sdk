@@ -41,6 +41,7 @@ type ProbeStore struct {
 
 // NewProbeStore creates a new object to store GodogProbes
 func NewProbeStore(name string, tags string, summaryState *audit.SummaryState) *ProbeStore {
+	log.Printf("[INFO] Creating new Probe store with tags: %s", tags)
 	return &ProbeStore{
 		Name:    name,
 		Probes:  make(map[string]*GodogProbe),
