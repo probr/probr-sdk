@@ -52,7 +52,7 @@ func (ctx *VarOptions) handleTagExclusions() {
 	}
 }
 
-// Init will override config.Vars with the content retrieved from a filepath
+// Init will override config.GlobalConfig with the content retrieved from a filepath
 func Init(configPath string) error {
 	config, err := NewConfig(configPath)
 
@@ -72,7 +72,7 @@ func Init(configPath string) error {
 	return nil
 }
 
-// NewConfig overrides the current config.Vars values
+// NewConfig overrides the current config.GlobalConfig values
 func NewConfig(c string) (VarOptions, error) {
 	// Create config structure
 	config := VarOptions{}

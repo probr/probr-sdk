@@ -80,7 +80,7 @@ func VarsFileHandler(v *string) {
 	if err != nil {
 		log.Fatalf("[ERROR] error returned from config.Init: %v", err)
 	} else if len(value) > 0 {
-		config.Vars.VarsFile = value
+		config.GlobalConfig.VarsFile = value
 		log.Printf("[INFO] Config read from file '%v', but may still be overridden by CLI flags.", value)
 	} else {
 		log.Printf("[NOTICE] No configuration variables file specified. Using environment variabls and defaults only.")
@@ -92,7 +92,7 @@ func WriteDirHandler(v *string) {
 	value := *v
 	if len(value) > 0 {
 		log.Printf("[NOTICE] Output Directory has been overridden via command line")
-		config.Vars.WriteDirectory = value
+		config.GlobalConfig.WriteDirectory = value
 	}
 }
 
@@ -106,37 +106,37 @@ func LoglevelHandler(v *string) {
 		if !found {
 			log.Fatalf("[ERROR] Unknown loglevel specified: '%s'. Must be one of %v", value, levels)
 		} else {
-			config.Vars.LogLevel = value
-			config.SetLogFilter(config.Vars.LogLevel, os.Stderr)
+			config.GlobalConfig.LogLevel = value
+			config.SetLogFilter(config.GlobalConfig.LogLevel, os.Stderr)
 		}
 	}
 }
 
-// ResultsformatHandler parses a flag and sets the godog output type
-func ResultsformatHandler(v *string) {
-	value := *v
-	if len(value) > 0 {
-		options := []string{"cucumber", "events", "junit", "pretty", "progress"}
-		_, found := utils.FindString(options, value)
-		if !found {
-			log.Fatalf("[ERROR] Unknown resultsformat specified: '%s'. Must be one of %v", value, options)
-		} else {
-			config.Vars.ResultsFormat = value
-			config.SetLogFilter(config.Vars.ResultsFormat, os.Stderr)
-		}
-	} else {
-		value = "cucumber" // default
-	}
-}
+// // ResultsformatHandler parses a flag and sets the godog output type
+// func ResultsformatHandler(v *string) {
+// 	value := *v
+// 	if len(value) > 0 {
+// 		options := []string{"cucumber", "events", "junit", "pretty", "progress"}
+// 		_, found := utils.FindString(options, value)
+// 		if !found {
+// 			log.Fatalf("[ERROR] Unknown resultsformat specified: '%s'. Must be one of %v", value, options)
+// 		} else {
+// 			config.GlobalConfig.ResultsFormat = value
+// 			config.SetLogFilter(config.GlobalConfig.ResultsFormat, os.Stderr)
+// 		}
+// 	} else {
+// 		value = "cucumber" // default
+// 	}
+// }
 
-// TagsHandler parses a flag and sets the godog/cucumber tags
-func TagsHandler(v *string) {
-	value := *v
-	if len(value) > 0 {
-		config.Vars.Tags = value
-		log.Printf("[INFO] tags have been added via command line.")
-	}
-}
+// // TagsHandler parses a flag and sets the godog/cucumber tags
+// func TagsHandler(v *string) {
+// 	value := *v
+// 	if len(value) > 0 {
+// 		config.GlobalConfig.Tags = value
+// 		log.Printf("[INFO] tags have been added via command line.")
+// 	}
+// }
 
 // TODO: we might not need this anymore
 func isFlagPassed(flagName string) bool {
