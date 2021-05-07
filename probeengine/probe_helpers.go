@@ -24,8 +24,7 @@ type Probe interface {
 
 // This is a var-func in order to be able to mock oiginal behavior during testing.
 var cucumberDirFunc = func() string {
-	cucumberDir := filepath.Join(config.GlobalConfig.OutputDir(), "cucumber")
-	_ = os.MkdirAll(cucumberDir, 0755) // Creates if not already existing
+	cucumberDir := filepath.Join(config.GlobalConfig.WriteDirectory, "cucumber")
 	return cucumberDir
 }
 

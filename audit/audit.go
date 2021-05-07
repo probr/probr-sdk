@@ -3,6 +3,7 @@ package audit
 import (
 	"encoding/json"
 	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/citihub/probr-sdk/utils"
@@ -27,6 +28,7 @@ type step struct {
 
 func (e *Probe) Write() {
 	if len(e.Scenarios) > 0 && utils.WriteAllowed(e.Path) {
+		os.Create(e.Path)
 		json, _ := json.MarshalIndent(e, "", "  ")
 		data := []byte(json)
 		ioutil.WriteFile(e.Path, data, 0755)

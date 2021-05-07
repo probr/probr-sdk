@@ -92,8 +92,8 @@ func (ctx *GlobalOpts) setEnvAndDefaults() {
 	home, _ := os.UserHomeDir()
 	setter.SetVar(&ctx.InstallDir, "PROBR_RESULTS_FORMAT", filepath.Join(home, "probr"))
 
-	setter.SetVar(&ctx.TmpDir, "PROBR_TMP_DIR", filepath.Join(home, "probr", "tmp"))
-	setter.SetVar(&ctx.WriteDirectory, "PROBR_WRITE_DIRECTORY", "")
+	setter.SetVar(&ctx.TmpDir, "PROBR_TMP_DIR", filepath.Join(ctx.InstallDir, "tmp"))
+	setter.SetVar(&ctx.WriteDirectory, "PROBR_WRITE_DIRECTORY", ctx.OutputDir())
 	setter.SetVar(&ctx.LogLevel, "PROBR_LOG_LEVEL", "DEBUG")
 	setter.SetVar(&ctx.GodogResultsFormat, "PROBR_RESULTS_FORMAT", "cucumber")
 }
@@ -158,9 +158,21 @@ func (ctx *GlobalOpts) OutputDir() string {
 	hour, min, sec := ctx.StartTime.Clock()
 	yearMonthDay := fmt.Sprintf("%04d%v%02d", year, month, day)
 	timestamp := fmt.Sprintf("%02d%02d%02d", hour, min, sec)
-	log.Printf("Year: %d Month: %v Day: %d", year, month, day)
-	log.Printf("Hours: %d Minutes: %d Seconds: %d", hour, min, sec)
-	log.Printf("[DEBUG] OutputDir called by %s", utils.CallerName(1))
+	execName := utils.GetExecutableName()
 
-	return filepath.Join(ctx.InstallDir, "output", yearMonthDay, timestamp)
+	base := filepath.Join(ctx.InstallDir, "output", yearMonthDay, timestamp, execName)
+	prepareOutputDirectories(base)
+	return base
+}
+
+func prepareOutputDirectories(base string) {
+	dirs := []string{"audit", "cucumber"}
+	for _, dir := range dirs {
+		err := os.MkdirAll(filepath.Join(base, dir), 0755)
+		if err != nil {
+			log.Print(utils.ReformatError(err.Error()))
+		} else {
+			log.Printf("[DEBUG] Directory is ready for use: %s", dir)
+		}
+	}
 }

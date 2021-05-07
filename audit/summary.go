@@ -35,16 +35,12 @@ type limitedSummaryState struct {
 
 // NewSummaryState creates a new SummaryState with default values
 func NewSummaryState(packName string) (state SummaryState) {
-	writeDirectory := filepath.Join(config.GlobalConfig.OutputDir(), packName)
 	state = SummaryState{
-		Probes:         make(map[string]*Probe),
-		Meta:           make(map[string]interface{}),
-		WriteDirectory: writeDirectory,
+		Probes: make(map[string]*Probe),
+		Meta:   make(map[string]interface{}),
 	}
 	return
 }
-
-// TODO: Marshal json, unmarshal into limited obj, then marshal & write/print
 
 // PrintSummary will print the current object state, formatted to JSON
 func (s *SummaryState) PrintSummary() {
@@ -53,12 +49,13 @@ func (s *SummaryState) PrintSummary() {
 
 // WriteSummary will write the summary to the audit directory
 func (s *SummaryState) WriteSummary() {
-	path := filepath.Join(config.Vars.GetWriteDirectory(), "summary.json")
+	path := filepath.Join(config.GlobalConfig.WriteDirectory, "summary.json")
 	if utils.WriteAllowed(path) {
 		ioutil.WriteFile(path, s.summary(), 0755)
 	}
 }
 
+// summary will marshal obj as json, unmarshal into limited obj, then marshal again & write/print
 func (s *SummaryState) summary() []byte {
 	var limitedObj limitedSummaryState
 	fullJSON := utils.JSON(s)
@@ -113,7 +110,7 @@ func (s *SummaryState) initProbe(n string) {
 	s.Probes[n] = &Probe{
 		name: n,
 		Meta: make(map[string]interface{}),
-		Path: filepath.Join(config.Vars.AuditDir(), (n + ".json")),
+		Path: filepath.Join(config.GlobalConfig.WriteDirectory, "audit", (n + ".json")),
 	}
 }
 
