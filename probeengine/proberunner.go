@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	sdk "github.com/citihub/probr-sdk"
+	"github.com/citihub/probr-sdk/config"
 	"github.com/cucumber/godog"
 )
 
@@ -82,7 +82,7 @@ func readProbeResults(ps *ProbeStore, name string) (probeResults, probeName stri
 
 // CleanupTmp is used to dispose of any temp resources used during execution
 func CleanupTmp() {
-	err := os.RemoveAll(sdk.GlobalConfig.TmpDir)
+	err := os.RemoveAll(config.GlobalConfig.TmpDir)
 	if err != nil {
 		log.Printf("[ERROR] Error removing tmp folder %v", err)
 	}

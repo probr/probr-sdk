@@ -1,6 +1,8 @@
 package config
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -37,6 +39,7 @@ type GlobalOpts struct {
 
 // Init ...
 func (ctx *GlobalOpts) Init() {
+	ctx.StartTime = time.Now()
 	if ctx.VarsFile != "" {
 		ctx.decode()
 	} else {
@@ -46,6 +49,7 @@ func (ctx *GlobalOpts) Init() {
 	ctx.setEnvAndDefaults()
 
 	log.Printf("[DEBUG] Config initialized by %s", utils.CallerName(1))
+	ctx.LogConfigState()
 }
 
 // decode uses an SDK helper to create a YAML file decoder,
@@ -59,6 +63,12 @@ func (ctx *GlobalOpts) decode() (err error) {
 	err = configDecoder.Decode(&ctx)
 	file.Close()
 	return
+}
+
+// LogConfigState ...
+func (ctx *GlobalOpts) LogConfigState() {
+	json, _ := json.MarshalIndent(ctx, "", "  ")
+	log.Printf("[INFO] Config State: %s", json)
 }
 
 // SetTmpDir sets the location that temporary files will be written to
@@ -82,12 +92,10 @@ func (ctx *GlobalOpts) setEnvAndDefaults() {
 	home, _ := os.UserHomeDir()
 	setter.SetVar(&ctx.InstallDir, "PROBR_RESULTS_FORMAT", filepath.Join(home, "probr"))
 
-	setter.SetVar(&ctx.TmpDir, "PROBR_RESULTS_FORMAT", "cucumber")
-	setter.SetVar(&ctx.WriteDirectory, "PROBR_WRITE_DIRECTORY", "probr_output")
+	setter.SetVar(&ctx.TmpDir, "PROBR_TMP_DIR", filepath.Join(home, "probr", "tmp"))
+	setter.SetVar(&ctx.WriteDirectory, "PROBR_WRITE_DIRECTORY", "")
 	setter.SetVar(&ctx.LogLevel, "PROBR_LOG_LEVEL", "DEBUG")
 	setter.SetVar(&ctx.GodogResultsFormat, "PROBR_RESULTS_FORMAT", "cucumber")
-
-	ctx.CloudProviders.Azure.SetEnvAndDefaults()
 }
 
 // ParseTags takes two lists of tags and parses them into a cucumber tag string
@@ -123,4 +131,36 @@ func prependTags(tags []string, prefix string) []string {
 		}
 	}
 	return tags
+}
+
+// SetTmpDir sets the location that temporary files will be written to
+func SetTmpDir(path string) {
+	GlobalConfig.TmpDir = path
+	err := os.MkdirAll(path, 0755)
+	if err == nil {
+		log.Printf("[DEBUG] Created temporary directory: %v", err)
+	} else {
+		log.Printf("[ERROR] Failed to create temporary directory: %v", err)
+	}
+}
+
+// CleanupTmp is used to dispose of any temp resources used during execution
+func (ctx *GlobalOpts) CleanupTmp() {
+	err := os.RemoveAll(ctx.TmpDir)
+	if err != nil {
+		log.Printf("[ERROR] Failed to remove temporary directory %v", err)
+	}
+}
+
+// OutputDir parses a filepath based on GlobalOpts.InstallDir and the datetime this was initialized
+func (ctx *GlobalOpts) OutputDir() string {
+	year, month, day := ctx.StartTime.Date()
+	hour, min, sec := ctx.StartTime.Clock()
+	yearMonthDay := fmt.Sprintf("%04d%v%02d", year, month, day)
+	timestamp := fmt.Sprintf("%02d%02d%02d", hour, min, sec)
+	log.Printf("Year: %d Month: %v Day: %d", year, month, day)
+	log.Printf("Hours: %d Minutes: %d Seconds: %d", hour, min, sec)
+	log.Printf("[DEBUG] OutputDir called by %s", utils.CallerName(1))
+
+	return filepath.Join(ctx.InstallDir, "output", yearMonthDay, timestamp)
 }

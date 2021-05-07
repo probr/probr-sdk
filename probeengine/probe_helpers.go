@@ -10,7 +10,7 @@ import (
 
 	"github.com/cucumber/godog"
 
-	sdk "github.com/citihub/probr-sdk"
+	"github.com/citihub/probr-sdk/config"
 	"github.com/citihub/probr-sdk/utils"
 )
 
@@ -24,7 +24,7 @@ type Probe interface {
 
 // This is a var-func in order to be able to mock oiginal behavior during testing.
 var cucumberDirFunc = func() string {
-	cucumberDir := filepath.Join(sdk.GlobalConfig.OutputDir(), "cucumber")
+	cucumberDir := filepath.Join(config.GlobalConfig.OutputDir(), "cucumber")
 	_ = os.MkdirAll(cucumberDir, 0755) // Creates if not already existing
 	return cucumberDir
 }
@@ -68,7 +68,7 @@ func GetFeaturePath(path ...string) string {
 // If so returns the file path, otherwise unpacks the original file using pkger and copies it to -tmp- location before returning file path.
 func getTmpFeatureFile(featurePath string) (string, error) {
 
-	tmpFeaturePath := filepath.Join(sdk.GlobalConfig.TmpDir, featurePath)
+	tmpFeaturePath := filepath.Join(config.GlobalConfig.TmpDir, featurePath)
 
 	// If file already exists return it
 	_, e := os.Stat(tmpFeaturePath)
