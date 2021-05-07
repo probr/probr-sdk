@@ -6,10 +6,9 @@ import (
 	"log"
 	"os"
 
+	"github.com/citihub/probr-sdk/config"
 	"github.com/cucumber/godog"
 	"github.com/cucumber/godog/colors"
-
-	sdk "github.com/citihub/probr-sdk"
 )
 
 // GodogProbeHandler is a wrapper to allow for multiple probe handlers in the future
@@ -53,7 +52,7 @@ func toFileGodogProbeHandler(gd *GodogProbe) (int, *bytes.Buffer, error) {
 
 func runTestSuite(o io.Writer, gd *GodogProbe) (int, error) {
 	opts := godog.Options{
-		Format: sdk.GlobalConfig.GodogResultsFormat,
+		Format: config.GlobalConfig.GodogResultsFormat,
 		Output: colors.Colored(o),
 		Paths:  []string{gd.FeaturePath},
 		Tags:   gd.Tags,

@@ -7,7 +7,6 @@ import (
 	"log"
 	"path/filepath"
 
-	sdk "github.com/citihub/probr-sdk"
 	"github.com/citihub/probr-sdk/config"
 	"github.com/citihub/probr-sdk/utils"
 )
@@ -36,7 +35,7 @@ type limitedSummaryState struct {
 
 // NewSummaryState creates a new SummaryState with default values
 func NewSummaryState(packName string) (state SummaryState) {
-	writeDirectory := filepath.Join(sdk.GlobalConfig.OutputDir(), packName)
+	writeDirectory := filepath.Join(config.GlobalConfig.OutputDir(), packName)
 	state = SummaryState{
 		Probes:         make(map[string]*Probe),
 		Meta:           make(map[string]interface{}),
