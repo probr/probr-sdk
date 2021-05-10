@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/citihub/probr-sdk/config"
+	"github.com/citihub/probr-sdk/logging"
 	"github.com/citihub/probr-sdk/utils"
 )
 
@@ -33,8 +34,12 @@ type limitedSummaryState struct {
 	WriteDirectory string
 }
 
-// NewSummaryState creates a new SummaryState with default values
-func NewSummaryState(packName string) (state SummaryState) {
+// NewSummaryState creates a new SummaryState with default values.
+// Optional second parameter allows default logger to be disabled
+func NewSummaryState(packName string, defaultLogger ...bool) (state SummaryState) {
+	if len(defaultLogger) > 0 && !defaultLogger[0] {
+		log.SetOutput(logging.ProbrLoggerOutput())
+	}
 	state = SummaryState{
 		Probes: make(map[string]*Probe),
 		Meta:   make(map[string]interface{}),
