@@ -76,7 +76,7 @@ func TestGlobalOpts_OutputDir(t *testing.T) {
 			if !strings.Contains(got, tt.base) {
 				t.Errorf("Expected output to contain '%s' but found '%s'", tt.base, got)
 			}
-			for _, time := range []int{year, int(month), day, hour, min, sec} {
+			for _, time := range []interface{}{year, day, month, hour, min, sec} {
 				if !strings.Contains(got, fmt.Sprint(time)) {
 					t.Errorf("Expected output to contain '%d' but found '%s'", time, got)
 				}

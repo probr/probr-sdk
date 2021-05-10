@@ -54,15 +54,14 @@ func (ps *ProbeStore) RunProbe(probe *GodogProbe) (int, error) {
 	return s, err
 }
 
-//GetAllProbeResults maps ProbeStore results to strings
-func GetAllProbeResults(ps *ProbeStore) (allResults map[string]string, success bool) {
+// GetAllProbeResults maps ProbeStore results to strings
+// Designed for use with in-memory output, such as for an API runtime
+func GetAllProbeResults(ps *ProbeStore) (allResults map[string]string) {
 	allResults = make(map[string]string)
-	success = true
 	for name := range ps.Probes {
 		probeResults, name, err := readProbeResults(ps, name)
 		if err != nil {
 			allResults[name] = err.Error()
-			success = false
 		} else {
 			allResults[name] = probeResults
 		}
