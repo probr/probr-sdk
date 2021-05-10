@@ -10,32 +10,11 @@ import (
 	"time"
 
 	"github.com/citihub/probr-sdk/config/setter"
-	azureconfig "github.com/citihub/probr-sdk/providers/azure/config"
 	"github.com/citihub/probr-sdk/utils"
 )
 
 // GlobalConfig ...
 var GlobalConfig GlobalOpts
-
-// CloudProviders config options
-type CloudProviders struct {
-	Azure azureconfig.Azure `yaml:"Azure"`
-}
-
-// GlobalOpts provides configurable options that will be used throughout the SDK
-type GlobalOpts struct {
-	StartTime          time.Time
-	VarsFile           string
-	InstallDir         string         `yaml:"InstallDir"`
-	TmpDir             string         `yaml:"TmpDir"`
-	GodogResultsFormat string         `yaml:"GodogResultsFormat"`
-	CloudProviders     CloudProviders `yaml:"CloudProviders"`
-	WriteDirectory     string         `yaml:"WriteDirectory"`
-	LogLevel           string         `yaml:"LogLevel"`
-	TagExclusions      []string       `yaml:"TagExclusions"`
-	TagInclusions      []string       `yaml:"TagInclusions"`
-	WriteConfig        string         `yaml:"WriteConfig"`
-}
 
 // Init ...
 func (ctx *GlobalOpts) Init() {
