@@ -14,7 +14,7 @@ func SetVar(field interface{}, varName string, defaultValue interface{}) {
 	case *[]string:
 		*field.(*[]string) = setStringSliceVar(*field.(*[]string), varName, defaultValue.([]string))
 	default:
-		log.Fatalf("Unexpected value type provided for '%v', should be %T", varName, v)
+		log.Fatalf("Unexpected value type provided for '%v'. Found %T but expected *string or *[]string", varName, v)
 	}
 }
 
