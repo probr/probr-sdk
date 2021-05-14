@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/citihub/probr-sdk/utils"
+	"github.com/probr/probr-sdk/utils"
 )
 
 // Scenario is used by scenario states to audit progress through each step

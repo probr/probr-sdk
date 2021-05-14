@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/citihub/probr-sdk/config/setter"
-	"github.com/citihub/probr-sdk/utils"
+	"github.com/probr/probr-sdk/config/setter"
+	"github.com/probr/probr-sdk/utils"
 )
 
 // GlobalConfig ...

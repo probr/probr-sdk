@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/citihub/probr-sdk/config"
-	"github.com/citihub/probr-sdk/utils"
 	"github.com/cucumber/godog"
+	"github.com/probr/probr-sdk/config"
+	"github.com/probr/probr-sdk/utils"
 )
 
 var testFolder string

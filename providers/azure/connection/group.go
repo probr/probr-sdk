@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2018-02-01/resources"
-	"github.com/citihub/probr-sdk/utils"
+	"github.com/probr/probr-sdk/utils"
 )
 
 // AzureResourceGroup ...

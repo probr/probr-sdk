@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/citihub/probr-sdk/config"
-	"github.com/citihub/probr-sdk/utils"
+	"github.com/probr/probr-sdk/config"
+	"github.com/probr/probr-sdk/utils"
 )
 
 var prefix string

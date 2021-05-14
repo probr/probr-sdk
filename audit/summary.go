@@ -7,9 +7,9 @@ import (
 	"log"
 	"path/filepath"
 
-	"github.com/citihub/probr-sdk/config"
-	"github.com/citihub/probr-sdk/logging"
-	"github.com/citihub/probr-sdk/utils"
+	"github.com/probr/probr-sdk/config"
+	"github.com/probr/probr-sdk/logging"
+	"github.com/probr/probr-sdk/utils"
 )
 
 // SummaryState is a stateful object intended to hold all the high-level info about a probe execution
