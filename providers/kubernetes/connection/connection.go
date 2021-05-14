@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/citihub/probr-sdk/providers/kubernetes/errors"
-	"github.com/citihub/probr-sdk/utils"
+	"github.com/probr/probr-sdk/providers/kubernetes/errors"
+	"github.com/probr/probr-sdk/utils"
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"

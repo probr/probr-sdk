@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/citihub/probr-sdk/config"
 	"github.com/cucumber/godog"
+	"github.com/probr/probr-sdk/config"
 )
 
 // ProbeRunner describes the interface that should be implemented to support the execution of tests.

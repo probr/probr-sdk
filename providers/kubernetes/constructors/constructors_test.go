@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/citihub/probr-sdk/utils"
+	"github.com/probr/probr-sdk/utils"
 	apiv1 "k8s.io/api/core/v1"
 )
 

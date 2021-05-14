@@ -6,9 +6,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/citihub/probr-sdk/config"
 	"github.com/cucumber/godog"
 	"github.com/cucumber/godog/colors"
+	"github.com/probr/probr-sdk/config"
 )
 
 // GodogProbeHandler is a wrapper to allow for multiple probe handlers in the future

@@ -1,4 +1,4 @@
-module github.com/citihub/probr-sdk
+module github.com/probr/probr-sdk
 
 go 1.14
 

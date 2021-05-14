@@ -3,7 +3,7 @@ package config
 import (
 	"time"
 
-	azureconfig "github.com/citihub/probr-sdk/providers/azure/config"
+	azureconfig "github.com/probr/probr-sdk/providers/azure/config"
 )
 
 // CloudProviders config options

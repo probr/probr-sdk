@@ -11,7 +11,7 @@ import (
 
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure/auth"
-	"github.com/citihub/probr-sdk/utils"
+	"github.com/probr/probr-sdk/utils"
 )
 
 // AzureCredentials ...
