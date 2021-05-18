@@ -12,6 +12,7 @@ type Probe struct {
 	ScenariosAttempted int
 	ScenariosSucceeded int
 	ScenariosFailed    int
+	GivenNotMet        int
 	Result             string
 	Scenarios          map[int]*Scenario
 }
@@ -22,6 +23,7 @@ type limitedProbe struct {
 	ScenariosAttempted int                    `json:"ScenariosAttempted"`
 	ScenariosSucceeded int                    `json:"ScenariosSucceeded"`
 	ScenariosFailed    int                    `json:"ScenariosFailed"`
+	GivenNotMet        int                    `json:"GivenNotMet"`
 	Result             string                 `json:"Result"`
 }
 
@@ -33,6 +35,8 @@ func (e *Probe) countResults() {
 			e.ScenariosFailed = e.ScenariosFailed + 1
 		} else if v.Result == "Passed" {
 			e.ScenariosSucceeded = e.ScenariosSucceeded + 1
+		} else if v.Result == "Given Not Met" {
+			e.GivenNotMet = e.GivenNotMet + 1
 		}
 	}
 }

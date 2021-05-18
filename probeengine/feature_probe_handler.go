@@ -22,13 +22,13 @@ func toFileGodogProbeHandler(gd *GodogProbe) (int, *bytes.Buffer, error) {
 		return -1, nil, err
 	}
 
-	status, err := runTestSuite(o, gd)
+	status := runTestSuite(o, gd)
 
-	//FUDGE! If the tests are skipped due to tags, then an empty file may
-	//be left lingering.  This will have a non-zero size as we've actually
-	//had to create the file prior to the test run (see line 31).  If it's
-	//less than 4 bytes, it's fairly certain that this will indeed be empty
-	//and can be removed.
+	// If the tests are skipped due to tags, then an empty file may
+	// be left lingering.  This will have a non-zero size as we've actually
+	// had to create the file prior to the test run (see line 31).  If it's
+	// less than 4 bytes, it's fairly certain that this will indeed be empty
+	// and can be removed.
 	i, err := o.Stat()
 	s := i.Size()
 	o.Close()
@@ -50,7 +50,7 @@ func toFileGodogProbeHandler(gd *GodogProbe) (int, *bytes.Buffer, error) {
 // 	return status, o, err
 // }
 
-func runTestSuite(o io.Writer, gd *GodogProbe) (int, error) {
+func runTestSuite(o io.Writer, gd *GodogProbe) int {
 	opts := godog.Options{
 		Format: config.GlobalConfig.GodogResultsFormat,
 		Output: colors.Colored(o),
@@ -65,5 +65,5 @@ func runTestSuite(o io.Writer, gd *GodogProbe) (int, error) {
 		Options:              &opts,
 	}.Run()
 
-	return status, nil
+	return status
 }
