@@ -7,6 +7,7 @@ import (
 	"github.com/probr/probr-sdk/config/setter"
 )
 
+// Kubernetes contains common variables needed when using the Kubernetes provider
 type Kubernetes struct {
 	KeepPods                 string `yaml:"KeepPods"` // TODO: Change type to bool, this would allow us to remove logic from kubernetes.GetKeepPodsFromConfig()
 	KubeConfigPath           string `yaml:"KubeConfig"`
@@ -15,7 +16,7 @@ type Kubernetes struct {
 	ProbeNamespace           string `yaml:"ProbeNamespace"`
 }
 
-// SetEnvOrDefaults will set value from os.Getenv and default to the specified value
+// SetEnvAndDefaults will set value from os.Getenv and default to the specified value
 func (ctx *Kubernetes) SetEnvAndDefaults() {
 	// Notes on SetVar's values:
 	// 1. Pointer to local object; will be overwritten by env or default if empty
