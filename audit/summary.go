@@ -128,9 +128,12 @@ func (s *SummaryState) completeProbe(e *Probe) {
 		e.Result = "No Scenarios Executed"
 		e.Meta["audit_path"] = ""
 		s.ProbesSkipped = s.ProbesSkipped + 1
-	} else if e.ScenariosFailed < 1 {
+	} else if e.ScenariosAttempted == e.ScenariosSucceeded {
 		e.Result = "Success"
 		s.ProbesPassed = s.ProbesPassed + 1
+	} else if e.ScenariosAttempted == e.GivenNotMet {
+		e.Result = "Given was Not Met"
+		s.ProbesSkipped = s.ProbesSkipped + 1
 	} else {
 		e.Result = "Failed"
 		s.ProbesFailed = s.ProbesFailed + 1
