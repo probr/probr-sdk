@@ -15,7 +15,7 @@ type Kubernetes struct {
 	ProbeNamespace           string `yaml:"ProbeNamespace"`
 }
 
-// setEnvOrDefaults will set value from os.Getenv and default to the specified value
+// SetEnvOrDefaults will set value from os.Getenv and default to the specified value
 func (ctx *Kubernetes) SetEnvAndDefaults() {
 	// Notes on SetVar's values:
 	// 1. Pointer to local object; will be overwritten by env or default if empty
