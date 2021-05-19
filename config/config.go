@@ -69,7 +69,7 @@ func (ctx *GlobalOpts) setEnvAndDefaults() {
 	// 3. Default value to set if flags, vars file, and env have not provided a value
 
 	home, _ := os.UserHomeDir()
-	setter.SetVar(&ctx.InstallDir, "PROBR_RESULTS_FORMAT", filepath.Join(home, "probr"))
+	setter.SetVar(&ctx.InstallDir, "PROBR_INSTALL_DIR", filepath.Join(home, "probr"))
 
 	setter.SetVar(&ctx.TmpDir, "PROBR_TMP_DIR", filepath.Join(ctx.InstallDir, "tmp"))
 	setter.SetVar(&ctx.WriteDirectory, "PROBR_WRITE_DIRECTORY", ctx.OutputDir())

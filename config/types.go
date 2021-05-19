@@ -4,13 +4,11 @@ import (
 	"time"
 
 	ac "github.com/probr/probr-sdk/providers/azure/config"
-	kc "github.com/probr/probr-sdk/providers/kubernetes/config"
 )
 
 // CloudProviders config options
 type CloudProviders struct {
-	Azure      ac.Azure      `yaml:"Azure"`
-	Kubernetes kc.Kubernetes `yaml:"Kubernetes"`
+	Azure ac.Azure `yaml:"Azure"`
 }
 
 // GlobalOpts provides configurable options that will be used throughout the SDK
