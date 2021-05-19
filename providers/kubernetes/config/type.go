@@ -22,6 +22,7 @@ func (ctx *Kubernetes) SetEnvAndDefaults() {
 	setter.SetVar(&ctx.KubeConfigPath, "KUBE_CONFIG", getDefaultKubeConfigPath())
 	setter.SetVar(&ctx.KubeContext, "KUBE_CONTEXT", "")
 	setter.SetVar(&ctx.AuthorisedContainerImage, "PROBR_AUTHORISED_IMAGE", "")
+	setter.SetVar(&ctx.ProbeNamespace, "PROBR_K8S_PROBE_NAMESPACE", "probr-general-test-ns")
 }
 
 func getDefaultKubeConfigPath() string {
