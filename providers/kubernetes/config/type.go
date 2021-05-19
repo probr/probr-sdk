@@ -9,7 +9,7 @@ import (
 
 // Kubernetes contains common variables needed when using the Kubernetes provider
 type Kubernetes struct {
-	KeepPods                 string `yaml:"KeepPods"` // TODO: Change type to bool, this would allow us to remove logic from kubernetes.GetKeepPodsFromConfig()
+	KeepPods                 string `yaml:"KeepPods"`
 	KubeConfigPath           string `yaml:"KubeConfig"`
 	KubeContext              string `yaml:"KubeContext"`
 	AuthorisedContainerImage string `yaml:"AuthorisedContainerImage"`
