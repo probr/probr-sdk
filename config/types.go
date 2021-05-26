@@ -16,6 +16,7 @@ type GlobalOpts struct {
 	StartTime          time.Time
 	VarsFile           string
 	InstallDir         string         `yaml:"InstallDir"`
+	BinariesDir        string         `yaml:"BinariesDir"`
 	TmpDir             string         `yaml:"TmpDir"`
 	GodogResultsFormat string         `yaml:"GodogResultsFormat"`
 	CloudProviders     CloudProviders `yaml:"CloudProviders"`

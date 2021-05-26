@@ -71,7 +71,8 @@ func (ctx *GlobalOpts) setEnvAndDefaults() {
 	home, _ := os.UserHomeDir()
 	setter.SetVar(&ctx.InstallDir, "PROBR_INSTALL_DIR", filepath.Join(home, "probr"))
 
-	setter.SetVar(&ctx.TmpDir, "PROBR_TMP_DIR", filepath.Join(ctx.InstallDir, "tmp"))
+	setter.SetVar(&ctx.TmpDir, "PROBR_TMP", filepath.Join(ctx.InstallDir, "tmp"))
+	setter.SetVar(&ctx.BinariesDir, "PROBR_BIN", filepath.Join(ctx.InstallDir, "bin"))
 	setter.SetVar(&ctx.WriteDirectory, "PROBR_WRITE_DIRECTORY", ctx.OutputDir())
 	setter.SetVar(&ctx.LogLevel, "PROBR_LOG_LEVEL", "DEBUG")
 	setter.SetVar(&ctx.GodogResultsFormat, "PROBR_RESULTS_FORMAT", "cucumber")
