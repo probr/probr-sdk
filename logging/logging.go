@@ -20,7 +20,6 @@ func init() {
 
 // Logger returns the active logger for use in
 // statements such as Logger().Info("")
-// TODO: Implement this in core to ensure it behaves as expected
 func Logger() hclog.Logger {
 	return activeLogger
 }
@@ -43,11 +42,6 @@ func newHCLogger(writer io.Writer, jsonFormat bool) hclog.Logger {
 // param[1] = Output
 // param[2] = JSONFormat
 func UpdateLogger(name string, params ...interface{}) {
-	if logger[name] == nil {
-		// Extend base logger for new entry
-		logger[name] = logger["default"].Named(name)
-	}
-
 	if len(params) > 1 {
 		// If a writer is specified a new logger will be required
 		if len(params) > 2 {
@@ -56,6 +50,10 @@ func UpdateLogger(name string, params ...interface{}) {
 			// If json format is not specified, default to false
 			logger[name] = newHCLogger(params[1].(io.Writer), false)
 		}
+	}
+	if logger[name] == nil {
+		// Extend base logger for new entry
+		logger[name] = logger["default"].Named(name)
 	}
 
 	if len(params) > 0 {
