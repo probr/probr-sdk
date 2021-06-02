@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/probr/probr-sdk/config/setter"
+	"github.com/probr/probr-sdk/logging"
 	"github.com/probr/probr-sdk/utils"
 )
 
@@ -26,9 +27,7 @@ func (ctx *GlobalOpts) Init() {
 	}
 
 	ctx.setEnvAndDefaults()
-
-	log.Printf("[DEBUG] Config initialized by %s", utils.CallerName(1))
-	ctx.LogConfigState()
+	logging.UpdateLogger("", ctx.LogLevel)
 }
 
 // decode uses an SDK helper to create a YAML file decoder,
