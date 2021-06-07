@@ -14,8 +14,12 @@ var (
 )
 
 func init() {
+	// Initialize default logger
+	name := ""
 	logger = make(map[string]hclog.Logger)
-	logger["default"] = newHCLogger(io.Writer(os.Stderr), false)
+	logger[name] = newHCLogger(io.Writer(os.Stderr), false)
+	writer := logger[name].StandardWriter(&hclog.StandardLoggerOptions{InferLevels: true})
+	SetLogWriter(name, writer)
 }
 
 // Logger returns the active logger for use in
@@ -30,7 +34,7 @@ func newHCLogger(writer io.Writer, jsonFormat bool) hclog.Logger {
 	// https://github.com/hashicorp/go-hclog/blob/master/logger.go#L19
 	return hclog.New(&hclog.LoggerOptions{
 		Name:       "",
-		Level:      hclog.Trace,
+		Level:      hclog.Error,
 		Output:     writer,
 		JSONFormat: jsonFormat, // TODO: Check env var to determine json format
 	})
