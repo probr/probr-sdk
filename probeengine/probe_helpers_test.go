@@ -18,7 +18,7 @@ func TestMain(m *testing.M) {
 	os.MkdirAll(filepath.Join(testFolder()), 0755)
 
 	defer func() {
-		// os.RemoveAll(testFolder())
+		os.RemoveAll(testFolder())
 		os.RemoveAll(config.GlobalConfig.TmpDir) // Delete test data after tests
 	}()
 	m.Run()

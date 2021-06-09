@@ -78,7 +78,7 @@ func UseLogger(name string, args ...interface{}) hclog.Logger {
 
 // SetLogWriter sets the log package to use the provided writer
 // If the logWriter was not created using this package,
-// Logger() will return nil until GetLogger is run
+// Logger() will return nil until UseLogger is run
 func SetLogWriter(name string, logWriter io.Writer) {
 	activeLogger = loggers[name]
 	if activeLogger == nil {
