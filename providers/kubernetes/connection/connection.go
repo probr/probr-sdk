@@ -339,7 +339,7 @@ func (connection *Conn) GetPVFromPVName(pvName string) (*apiv1.PersistentVolume,
 // GetRawResourceByName makes a 'raw' REST call to the specified K8s api endpoint to get a resource by name and namespace.
 // This is used to interact with available custom resources in the cluster, such as azureidentitybindings.
 // An empty value for 'namespace' means retrieving all resources accross all namespaces
-// Sample request params:
+// Sample request args:
 //	apiEndPoint:	apis/aadpodidentity.k8s.io/v1
 //	namespace:		"demo-ns"
 //	resourceName:	"azureidentitybindings"
@@ -377,7 +377,7 @@ func (connection *Conn) GetRawResourceByName(apiEndPoint, namespace, resourceTyp
 
 // PostRawResource makes a 'raw' POST call to the specified K8s api endpoint to create a resource.
 // This is used to interact with available custom resources in the cluster, such as azureidentitybindings.
-// Sample request params:
+// Sample request args:
 //	apiEndPoint:	apis/aadpodidentity.k8s.io/v1
 //	namespace:		"demo-ns"
 //	resourceName:	"azureidentitybindings"

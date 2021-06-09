@@ -9,53 +9,46 @@ import (
 
 	"github.com/cucumber/godog"
 	"github.com/probr/probr-sdk/config"
-	"github.com/probr/probr-sdk/utils"
 )
-
-var testFolder string
 
 func TestMain(m *testing.M) {
 
 	log.Print("Initializing global test resources")
 
-	f, testFolderErr := filepath.Abs("./testdata") // Need absolute path so that pkger.Open can work
-	if testFolderErr != nil {
-		log.Fatalf("Error loading test data folder: %v", testFolderErr)
-	}
-	testFolder = f
-	log.Printf("testFolder set to: '%s'", testFolder)
+	os.MkdirAll(filepath.Join(testFolder()), 0755)
 
-	os.Exit(m.Run())
+	defer func() {
+		// os.RemoveAll(testFolder())
+		os.RemoveAll(config.GlobalConfig.TmpDir) // Delete test data after tests
+	}()
+	m.Run()
+}
+
+func testFolder() string {
+	testFolder, _ := filepath.Abs("./testdata") // Need absolute path so that pkger.Open can work
+	return testFolder
 }
 
 func TestGetOutputPath(t *testing.T) {
 	var file *os.File
-
-	// Using -testdata- folder to ensure no test resources are included in build
-	// Once we migrate to go v1.15, we should use t.TempDir() to ensure built-in test directory is automatically removed by cleanup when test and subtests complete. See: https://golang.org/pkg/testing/#pkg-subdirectories
-	d := filepath.Join("testdata", "test_output_dir")
-
+	config.GlobalConfig.WriteDirectory = t.TempDir()
 	f := "test_file"
-	desiredFile := filepath.Join(d, f) + ".json"
-	defer func() {
-		// Cleanup test assets
-		file.Close()
-		err := os.RemoveAll(d)
-		if err != nil {
-			t.Logf("%s", err)
-		}
+	desiredFile := filepath.Join(config.GlobalConfig.WriteDirectory, "cucumber", f+".json")
 
+	defer func() {
+		file.Close()
 		// Swallow any panics and print a verbose error message
 		if err := recover(); err != nil {
-			t.Logf("Panicked when trying to create directory or file: '%s'", desiredFile)
+			t.Logf("Panicked when trying to create directory or file: '%s' || %v", desiredFile, file)
 			t.Fail()
 		}
 	}()
-	// Faking result for config.CucumberDir(). This is used inside getOutputPath.
-	cucumberDirFunc = func() string {
-		_ = os.MkdirAll(d, 0755) // Creates if not already existing
-		return d
+
+	err := os.MkdirAll(filepath.Join(config.GlobalConfig.WriteDirectory, "cucumber"), 0755)
+	if err != nil {
+		t.Error(err)
 	}
+
 	file, _ = getOutputPath(f)
 	if desiredFile != file.Name() {
 		t.Logf("Desired filepath '%s' does not match '%s'", desiredFile, file.Name())
@@ -117,34 +110,29 @@ func TestGetFeaturePath(t *testing.T) {
 }
 
 func Test_getTmpFeatureFile(t *testing.T) {
+	config.GlobalConfig.TmpDir = t.TempDir()
+	filename := "Test_getTmpFeatureFile.feature"
+	os.Create(filepath.Join(testFolder(), filename))
+	os.MkdirAll(filepath.Join(config.GlobalConfig.TmpDir, "probeengine", "testdata"), 0755)
 
-	config.GlobalConfig.TmpDir = filepath.Join(testFolder, utils.RandomString(10))
-	defer func() {
-		os.RemoveAll(config.GlobalConfig.TmpDir) // Delete test data after tests
-	}()
-
-	type args struct {
-		featurePath string
-	}
 	tests := []struct {
 		testName       string
-		testArgs       args
+		featurePath    string
 		expectedResult string
 		expectedErr    bool
 	}{
 		{
 			testName:       "ShouldCreateTmpFolderWithFeatureFile",
-			testArgs:       args{featurePath: filepath.Join("probeengine", "testdata", "Test_getTmpFeatureFile.feature")}, // This cannot be an absolute path, since it will be joined with temp dir
-			expectedResult: filepath.Join(config.GlobalConfig.TmpDir, "probeengine", "testdata", "Test_getTmpFeatureFile.feature"),
+			featurePath:    filepath.Join("probeengine", "testdata", filename), // This cannot be an absolute path, since it will be joined with temp dir
+			expectedResult: filepath.Join(config.GlobalConfig.TmpDir, "probeengine", "testdata", filename),
 			expectedErr:    false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.testName, func(t *testing.T) {
-			got, err := getTmpFeatureFile(tt.testArgs.featurePath)
-			if (err != nil) != tt.expectedErr {
-				t.Errorf("getTmpFeatureFile() error = %v, expected error: %v", err, tt.expectedErr)
-				return
+			got, err := getTmpFeatureFile(tt.featurePath)
+			if err != nil {
+				t.Error(err)
 			}
 			if got != tt.expectedResult {
 				t.Errorf("getTmpFeatureFile() = %v, expected %v", got, tt.expectedResult)
@@ -159,11 +147,9 @@ func Test_getTmpFeatureFile(t *testing.T) {
 }
 
 func Test_unpackFileAndSave(t *testing.T) {
+	filename := "Test_getTmpFeatureFile.feature"
 
-	testTargetDir := filepath.Join(testFolder, utils.RandomString(10))
-	defer func() {
-		os.RemoveAll(testTargetDir) // Delete test data after tests
-	}()
+	os.Create(filepath.Join(testFolder(), filename))
 
 	type args struct {
 		origFilePath string
@@ -177,8 +163,8 @@ func Test_unpackFileAndSave(t *testing.T) {
 		{
 			testName: "ShouldCreateFileInNewLocation",
 			testArgs: args{
-				origFilePath: filepath.Join(testFolder, "Test_unpackFileAndSave.feature"),
-				newFilePath:  filepath.Join(testTargetDir, "Test_unpackFileAndSave.feature"),
+				origFilePath: filepath.Join(testFolder(), filename),
+				newFilePath:  filepath.Join(config.GlobalConfig.TmpDir, filename),
 			},
 			expectedErr: false,
 		},

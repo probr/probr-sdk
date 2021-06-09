@@ -6,20 +6,19 @@ import (
 	"os"
 
 	hclog "github.com/hashicorp/go-hclog"
+	"github.com/probr/probr-sdk/config"
 )
 
 var (
 	activeLogger hclog.Logger
-	logger       map[string]hclog.Logger
+	loggers      map[string]hclog.Logger
 )
 
 func init() {
 	// Initialize default logger
-	name := ""
-	logger = make(map[string]hclog.Logger)
-	logger[name] = newHCLogger(io.Writer(os.Stderr), false)
-	writer := logger[name].StandardWriter(&hclog.StandardLoggerOptions{InferLevels: true})
-	SetLogWriter(name, writer)
+	name := "default"
+	loggers = make(map[string]hclog.Logger)
+	UseLogger(name)
 }
 
 // Logger returns the active logger for use in
@@ -28,60 +27,63 @@ func Logger() hclog.Logger {
 	return activeLogger
 }
 
-// newHCLogger creates a new hclog.Logger instance with the given name and log level
-func newHCLogger(writer io.Writer, jsonFormat bool) hclog.Logger {
+// Writer ...
+func Writer() io.Writer {
+	return activeLogger.StandardWriter(&hclog.StandardLoggerOptions{InferLevels: true})
+}
+
+// newLogger creates a new hclog.Logger instance with the given name and log level
+func newLogger(writer io.Writer, jsonFormat bool) hclog.Logger {
 	// For level options, reference:
 	// https://github.com/hashicorp/go-hclog/blob/master/logger.go#L19
 	return hclog.New(&hclog.LoggerOptions{
-		Name:       "",
-		Level:      hclog.Error,
+		Level:      hclog.LevelFromString(config.GlobalConfig.LogLevel),
 		Output:     writer,
 		JSONFormat: jsonFormat, // TODO: Check env var to determine json format
 	})
 }
 
-// UpdateLogger ensures that the log package uses
-// an hc logger with the provided name and loglevel
-// param[0] = Level
-// param[1] = Output
-// param[2] = JSONFormat
-func UpdateLogger(name string, params ...interface{}) {
-	if len(params) > 1 {
-		// If a writer is specified a new logger will be required
-		if len(params) > 2 {
-			logger[name] = newHCLogger(params[1].(io.Writer), params[2].(bool))
-		} else {
+// GetLogger returns an hc logger with the provided name
+// and creates or updates an existing logger using args
+// args[0] = Level
+// args[1] = Output
+// args[2] = JSONFormat
+func GetLogger(name string, args ...interface{}) hclog.Logger {
+	if loggers[name] == nil {
+		if len(args) > 2 {
+			loggers[name] = newLogger(args[1].(io.Writer), args[2].(bool))
+		} else if len(args) > 1 {
 			// If json format is not specified, default to false
-			logger[name] = newHCLogger(params[1].(io.Writer), false)
+			loggers[name] = newLogger(args[1].(io.Writer), false)
+		} else {
+			loggers[name] = newLogger(os.Stderr, false)
 		}
 	}
-	if logger[name] == nil {
-		// Extend base logger for new entry
-		logger[name] = logger["default"].Named(name)
-	}
 
-	if len(params) > 0 {
+	if len(args) > 0 && args[0] != nil {
 		// Set loglevel; Defaults to value in config vars
-		logger[name].SetLevel(hclog.LevelFromString(params[0].(string)))
+		loggers[name].SetLevel(hclog.LevelFromString(args[0].(string)))
 	}
-	writer := logger[name].StandardWriter(&hclog.StandardLoggerOptions{InferLevels: true})
+	return loggers[name]
+}
+
+// UseLogger creates or retrieves a logger by name
+// and sets it as the primary logger for the log package
+func UseLogger(name string, args ...interface{}) hclog.Logger {
+	logger := GetLogger(name, args...)
+	writer := logger.StandardWriter(&hclog.StandardLoggerOptions{InferLevels: true})
 	SetLogWriter(name, writer)
+	return logger
 }
 
 // SetLogWriter sets the log package to use the provided writer
 // If the logWriter was not created using this package,
-// Logger() will return nil until UpdateLogger is run
+// Logger() will return nil until GetLogger is run
 func SetLogWriter(name string, logWriter io.Writer) {
-	activeLogger = logger[name]
-	log.SetFlags(0)
-	log.SetPrefix(name)
-	log.SetOutput(logWriter)
-}
-
-// GetLogger returns the logger requested by name
-func GetLogger(name string) hclog.Logger {
-	if logger[name] == nil {
-		return nil
+	activeLogger = loggers[name]
+	if activeLogger == nil {
+		GetLogger(name)
 	}
-	return logger[name]
+	log.SetFlags(0)
+	log.SetOutput(logWriter)
 }
