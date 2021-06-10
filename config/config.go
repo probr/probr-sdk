@@ -58,7 +58,7 @@ func (ctx *GlobalOpts) setEnvAndDefaults() {
 	setter.SetVar(&ctx.InstallDir, "PROBR_INSTALL_DIR", filepath.Join(home, "probr"))
 
 	setter.SetVar(&ctx.TmpDir, "PROBR_TMP_DIR", filepath.Join(ctx.InstallDir, "tmp"))
-	setter.SetVar(&ctx.WriteDirectory, "PROBR_WRITE_DIRECTORY", ctx.OutputDir())
+	setter.SetVar(&ctx.WriteDirectory, "PROBR_WRITE_DIRECTORY", ctx.outputDir())
 	setter.SetVar(&ctx.LogLevel, "PROBR_LOG_LEVEL", "DEBUG")
 	setter.SetVar(&ctx.GodogResultsFormat, "PROBR_RESULTS_FORMAT", "cucumber")
 }
@@ -106,8 +106,8 @@ func (ctx *GlobalOpts) CleanupTmp() {
 	}
 }
 
-// OutputDir parses a filepath based on GlobalOpts.InstallDir and the datetime this was initialized
-func (ctx *GlobalOpts) OutputDir() string {
+// outputDir parses a filepath based on GlobalOpts.InstallDir and the datetime this was initialized
+func (ctx *GlobalOpts) outputDir() string {
 	execName := utils.GetExecutableName()
 	if execName == "probr" {
 		return filepath.Join(ctx.InstallDir, "output")
@@ -117,7 +117,7 @@ func (ctx *GlobalOpts) OutputDir() string {
 
 // PrepareOutputDirectory will ensure readiness of output dir and specified subdirectories
 func (ctx *GlobalOpts) PrepareOutputDirectory(subdirectories ...string) {
-	base := ctx.OutputDir()
+	base := ctx.outputDir()
 	log.Printf("[DEBUG] Ensuring output directory is ready for use: %s", base)
 	ensureDirReadiness(base)
 	// If subdirectories are provided, validate each
