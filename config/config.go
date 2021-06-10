@@ -2,7 +2,6 @@ package config
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -10,24 +9,23 @@ import (
 	"time"
 
 	"github.com/probr/probr-sdk/config/setter"
-	"github.com/probr/probr-sdk/logging"
 	"github.com/probr/probr-sdk/utils"
 )
 
 // GlobalConfig ...
 var GlobalConfig GlobalOpts
 
+func init() {
+	GlobalConfig.Init() // Initialize with default values only
+}
+
 // Init ...
 func (ctx *GlobalOpts) Init() {
 	ctx.StartTime = time.Now()
 	if ctx.VarsFile != "" {
 		ctx.decode()
-	} else {
-		log.Printf("[DEBUG] No vars file provided, unexpected behavior may occur")
 	}
-
 	ctx.setEnvAndDefaults()
-	logging.UpdateLogger("", ctx.LogLevel)
 }
 
 // decode uses an SDK helper to create a YAML file decoder,
@@ -47,17 +45,6 @@ func (ctx *GlobalOpts) decode() (err error) {
 func (ctx *GlobalOpts) LogConfigState() {
 	json, _ := json.MarshalIndent(ctx, "", "  ")
 	log.Printf("[INFO] Config State: %s", json)
-}
-
-// SetTmpDir sets the location that temporary files will be written to
-func (ctx *GlobalOpts) SetTmpDir(path string) {
-	ctx.TmpDir = path
-	err := os.MkdirAll(path, 0755)
-	if err == nil {
-		log.Printf("[DEBUG] Created temporary directory: %v", err)
-	} else {
-		log.Printf("[ERROR] Failed to create temporary directory: %v", err)
-	}
 }
 
 // setEnvOrDefaults will set value from os.Getenv and default to the specified value
@@ -111,17 +98,6 @@ func prependTags(tags []string, prefix string) []string {
 	return tags
 }
 
-// SetTmpDir sets the location that temporary files will be written to
-func SetTmpDir(path string) {
-	GlobalConfig.TmpDir = path
-	err := os.MkdirAll(path, 0755)
-	if err == nil {
-		log.Printf("[DEBUG] Created temporary directory: %v", err)
-	} else {
-		log.Printf("[ERROR] Failed to create temporary directory: %v", err)
-	}
-}
-
 // CleanupTmp is used to dispose of any temp resources used during execution
 func (ctx *GlobalOpts) CleanupTmp() {
 	err := os.RemoveAll(ctx.TmpDir)
@@ -132,13 +108,9 @@ func (ctx *GlobalOpts) CleanupTmp() {
 
 // OutputDir parses a filepath based on GlobalOpts.InstallDir and the datetime this was initialized
 func (ctx *GlobalOpts) OutputDir() string {
-	year, month, day := ctx.StartTime.Date()
-	hour, min, sec := ctx.StartTime.Clock()
-	yearMonthDay := fmt.Sprintf("%04d%v%02d", year, month, day)
-	timestamp := fmt.Sprintf("%02d%02d%02d", hour, min, sec)
 	execName := utils.GetExecutableName()
 
-	base := filepath.Join(ctx.InstallDir, "output", yearMonthDay, timestamp, execName)
+	base := filepath.Join(ctx.InstallDir, "output", execName)
 	prepareOutputDirectories(base)
 	return base
 }

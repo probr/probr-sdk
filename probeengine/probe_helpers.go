@@ -22,22 +22,15 @@ type Probe interface {
 	Path() string
 }
 
-// This is a var-func in order to be able to mock oiginal behavior during testing.
-var cucumberDirFunc = func() string {
-	cucumberDir := filepath.Join(config.GlobalConfig.WriteDirectory, "cucumber")
-	return cucumberDir
-}
-
 // see TestGetOutputPath
 var getTmpFeatureFileFunc = getTmpFeatureFile // See TestGetFeaturePath
 
 // getOutputPath gets the output path for the test based on the output directory
 // plus the test name supplied
-func getOutputPath(t string) (*os.File, error) {
-
-	////filename is test name (supplied) + .json
-	fn := t + ".json"
-	return os.Create(filepath.Join(cucumberDirFunc(), fn))
+func getOutputPath(name string) (*os.File, error) {
+	filename := name + ".json"
+	return os.Create(filepath.Join(
+		config.GlobalConfig.WriteDirectory, "cucumber", filename))
 }
 
 // GetFilePath parses a list of strings into a standardized file path. The filename should be in the final element of path
@@ -80,13 +73,13 @@ func getTmpFeatureFile(featurePath string) (string, error) {
 
 		err := unpackFileAndSave(featurePath, tmpFeaturePath)
 		if err != nil {
-			return "", fmt.Errorf("Error unpacking file: '%v' - Error: %v", featurePath, err)
+			return "", fmt.Errorf("failed to unpack file: '%v' - Error: %v", featurePath, err)
 		}
 
 		return tmpFeaturePath, err
 	}
 
-	return "", fmt.Errorf("Error getting os stat for tmp file: '%v' - Error: %v", tmpFeaturePath, e)
+	return "", fmt.Errorf("could not stat tmp file: '%v' - Error: %v", tmpFeaturePath, e)
 }
 
 func unpackFileAndSave(origFilePath string, newFilePath string) error {

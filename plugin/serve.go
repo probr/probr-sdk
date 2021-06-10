@@ -2,9 +2,11 @@ package plugin
 
 import (
 	"log"
+	"os"
 
 	hclog "github.com/hashicorp/go-hclog"
 	hcplugin "github.com/hashicorp/go-plugin"
+	"github.com/probr/probr-sdk/logging"
 )
 
 const (
@@ -43,13 +45,7 @@ func Serve(opts *ServeOpts) {
 		// terraform, we need to use an hclog.Logger with JSON output. We can
 		// inject this into the std `log` package here, so existing providers will
 		// make use of it automatically.
-		logger := hclog.New(&hclog.LoggerOptions{
-			// We send all output to terraform. Go-plugin will take the output and
-			// pass it through another hclog.Logger on the client side where it can
-			// be filtered.
-			Level:      hclog.Trace,
-			JSONFormat: true,
-		})
+		logger := logging.GetLogger("", nil, os.Stderr, true)
 		log.SetOutput(logger.StandardWriter(&hclog.StandardLoggerOptions{InferLevels: true}))
 	}
 
