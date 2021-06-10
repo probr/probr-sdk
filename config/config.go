@@ -117,12 +117,11 @@ func (ctx *GlobalOpts) outputDir() string {
 
 // PrepareOutputDirectory will ensure readiness of output dir and specified subdirectories
 func (ctx *GlobalOpts) PrepareOutputDirectory(subdirectories ...string) {
-	base := ctx.outputDir()
-	log.Printf("[DEBUG] Ensuring output directory is ready for use: %s", base)
-	ensureDirReadiness(base)
+	log.Printf("[DEBUG] Ensuring output directory is ready for use: %s", ctx.WriteDirectory)
+	ensureDirReadiness(ctx.WriteDirectory)
 	// If subdirectories are provided, validate each
 	for _, dir := range subdirectories {
-		dirName := filepath.Join(base, dir)
+		dirName := filepath.Join(ctx.WriteDirectory, dir)
 		ensureDirReadiness(dirName)
 	}
 }
