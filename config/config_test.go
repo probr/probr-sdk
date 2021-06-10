@@ -12,11 +12,11 @@ func TestGlobalOpts_OutputDir(t *testing.T) {
 		base string
 	}{
 		{
-			name: "Test OutputDir",
+			name: "Test outputDir",
 			base: filepath.Join("imaginary", "dir"),
 		},
 		{
-			name: "Test OutputDir",
+			name: "Test outputDir",
 			base: filepath.Join("other", "imaginary", "dir"),
 		},
 	}
@@ -26,7 +26,7 @@ func TestGlobalOpts_OutputDir(t *testing.T) {
 			gc := GlobalOpts{
 				InstallDir: tt.base,
 			}
-			got := gc.OutputDir()
+			got := gc.outputDir()
 			if !strings.Contains(got, tt.base) {
 				t.Errorf("Expected output to contain '%s' but found '%s'", tt.base, got)
 			}
