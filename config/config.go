@@ -109,20 +109,30 @@ func (ctx *GlobalOpts) CleanupTmp() {
 // OutputDir parses a filepath based on GlobalOpts.InstallDir and the datetime this was initialized
 func (ctx *GlobalOpts) OutputDir() string {
 	execName := utils.GetExecutableName()
-
-	base := filepath.Join(ctx.InstallDir, "output", execName)
-	prepareOutputDirectories(base)
-	return base
+	if execName == "probr" {
+		return filepath.Join(ctx.InstallDir, "output")
+	}
+	return filepath.Join(ctx.InstallDir, "output", execName)
 }
 
-func prepareOutputDirectories(base string) {
-	dirs := []string{"audit", "cucumber"}
-	for _, dir := range dirs {
-		err := os.MkdirAll(filepath.Join(base, dir), 0755)
-		if err != nil {
-			log.Print(utils.ReformatError(err.Error()))
-		} else {
-			log.Printf("[DEBUG] Directory is ready for use: %s", dir)
-		}
+// PrepareOutputDirectory will ensure readiness of output dir and specified subdirectories
+func (ctx *GlobalOpts) PrepareOutputDirectory(subdirectories ...string) {
+	base := ctx.OutputDir()
+	log.Printf("[DEBUG] Ensuring output directory is ready for use: %s", base)
+	ensureDirReadiness(base)
+	// If subdirectories are provided, validate each
+	for _, dir := range subdirectories {
+		dirName := filepath.Join(base, dir)
+		ensureDirReadiness(dirName)
+	}
+}
+
+// Create directory if possible, otherwise log error to console
+func ensureDirReadiness(directory string) {
+	err := os.MkdirAll(directory, 0755)
+	if err != nil {
+		log.Print(utils.ReformatError(err.Error()))
+	} else {
+		log.Printf("[DEBUG] Directory is ready for use: %s", directory)
 	}
 }
