@@ -58,7 +58,7 @@ func (ctx *GlobalOpts) setEnvAndDefaults() {
 	setter.SetVar(&ctx.InstallDir, "PROBR_INSTALL_DIR", filepath.Join(home, "probr"))
 
 	setter.SetVar(&ctx.TmpDir, "PROBR_TMP_DIR", filepath.Join(ctx.InstallDir, "tmp"))
-	setter.SetVar(&ctx.WriteDirectory, "PROBR_WRITE_DIRECTORY", ctx.OutputDir())
+	setter.SetVar(&ctx.WriteDirectory, "PROBR_WRITE_DIRECTORY", ctx.outputDir())
 	setter.SetVar(&ctx.LogLevel, "PROBR_LOG_LEVEL", "DEBUG")
 	setter.SetVar(&ctx.GodogResultsFormat, "PROBR_RESULTS_FORMAT", "cucumber")
 }
@@ -106,23 +106,32 @@ func (ctx *GlobalOpts) CleanupTmp() {
 	}
 }
 
-// OutputDir parses a filepath based on GlobalOpts.InstallDir and the datetime this was initialized
-func (ctx *GlobalOpts) OutputDir() string {
+// outputDir parses a filepath based on GlobalOpts.InstallDir and the datetime this was initialized
+func (ctx *GlobalOpts) outputDir() string {
 	execName := utils.GetExecutableName()
-
-	base := filepath.Join(ctx.InstallDir, "output", execName)
-	prepareOutputDirectories(base)
-	return base
+	if execName == "probr" {
+		return filepath.Join(ctx.InstallDir, "output")
+	}
+	return filepath.Join(ctx.InstallDir, "output", execName)
 }
 
-func prepareOutputDirectories(base string) {
-	dirs := []string{"audit", "cucumber"}
-	for _, dir := range dirs {
-		err := os.MkdirAll(filepath.Join(base, dir), 0755)
-		if err != nil {
-			log.Print(utils.ReformatError(err.Error()))
-		} else {
-			log.Printf("[DEBUG] Directory is ready for use: %s", dir)
-		}
+// PrepareOutputDirectory will ensure readiness of output dir and specified subdirectories
+func (ctx *GlobalOpts) PrepareOutputDirectory(subdirectories ...string) {
+	log.Printf("[DEBUG] Ensuring output directory is ready for use: %s", ctx.WriteDirectory)
+	ensureDirReadiness(ctx.WriteDirectory)
+	// If subdirectories are provided, validate each
+	for _, dir := range subdirectories {
+		dirName := filepath.Join(ctx.WriteDirectory, dir)
+		ensureDirReadiness(dirName)
+	}
+}
+
+// Create directory if possible, otherwise log error to console
+func ensureDirReadiness(directory string) {
+	err := os.MkdirAll(directory, 0755)
+	if err != nil {
+		log.Print(utils.ReformatError(err.Error()))
+	} else {
+		log.Printf("[DEBUG] Directory is ready for use: %s", directory)
 	}
 }
