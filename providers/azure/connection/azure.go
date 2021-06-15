@@ -52,7 +52,7 @@ var instance *AzureConnection
 var once sync.Once
 
 // NewAzureConnection provides a singleton instance of AzureConnection. Initializes all internal clients to interact with Azure.
-func NewAzureConnection(c context.Context, subscriptionID, tenantID, clientID, clientSecret string) (azConn *AzureConnection) {
+func NewAzureConnection(c context.Context, subscriptionID, tenantID, clientID, clientSecret string) *AzureConnection {
 	once.Do(func() {
 		// Guard clause
 		if c == nil {
@@ -136,6 +136,7 @@ func (az *AzureConnection) DeleteStorageAccount(resourceGroupName, accountName s
 
 // GetManagedClusterJSON returns the JSON representation of an AKS cluster, similar to az aks show. NOTE that the output from this function has differences to the az cli that needs to be accomodated if you are using the JSON created by this function.
 func (az *AzureConnection) GetManagedClusterJSON(resourceGroupName, clusterName string) ([]byte, error) {
+	// Currently experiencing a nil pointer dereference panic
 	log.Printf("[DEBUG] getting JSON for AKS Cluster '%s'", clusterName)
 	return az.ManagedCluster.GetJSONRepresentation(resourceGroupName, clusterName)
 }
