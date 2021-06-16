@@ -60,7 +60,10 @@ func (sa *AzureStorageAccount) getStorageAccountClient(creds AzureCredentials) (
 
 // Create starts creation of a new Storage Account and waits for the account to be created.
 func (sa *AzureStorageAccount) Create(accountName, accountGroupName string, tags map[string]*string, httpsOnly bool, networkRuleSet *storage.NetworkRuleSet) (storage.Account, error) {
-
+	resourceLocation, err := azure.ResourceLocation()
+	if err != nil {
+		return storage.Account{}, err
+	}
 	log.Printf("[DEBUG] creating Storage Account '%s'", accountName)
 
 	var storageAccount storage.Account
@@ -93,7 +96,7 @@ func (sa *AzureStorageAccount) Create(accountName, accountGroupName string, tags
 			Sku: &storage.Sku{
 				Name: storage.StandardLRS},
 			Kind:                              storage.Storage,
-			Location:                          to.StringPtr(azure.ResourceLocation()),
+			Location:                          &resourceLocation,
 			AccountPropertiesCreateParameters: networkRuleSetParam,
 			Tags:                              tags,
 		})

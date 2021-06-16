@@ -56,7 +56,7 @@ func (amc *AzureManagedCluster) GetJSONRepresentation(resourceGroupName string, 
 	var cs containerservice.ManagedCluster
 	cs, err = amc.azManagedClustersClient.Get(amc.ctx, resourceGroupName, clusterName)
 	if err != nil {
-		log.Printf("Error getting ContainerServiceClient: %v", err)
+		log.Printf("[ERROR] Failed to retrieve ContainerServiceClient: %v", err)
 		return
 	}
 	aksJSON, err = cs.MarshalJSON()

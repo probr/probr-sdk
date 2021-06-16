@@ -52,7 +52,7 @@ var instance *AzureConnection
 var once sync.Once
 
 // NewAzureConnection provides a singleton instance of AzureConnection. Initializes all internal clients to interact with Azure.
-func NewAzureConnection(c context.Context, subscriptionID, tenantID, clientID, clientSecret string) (azConn *AzureConnection) {
+func NewAzureConnection(c context.Context, subscriptionID, tenantID, clientID, clientSecret string) *AzureConnection {
 	once.Do(func() {
 		// Guard clause
 		if c == nil {
