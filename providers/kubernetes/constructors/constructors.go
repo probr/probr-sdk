@@ -91,7 +91,7 @@ func DefaultPodSecurityContext() *apiv1.PodSecurityContext {
 func DefaultEntrypoint() []string {
 	return []string{
 		"sleep",
-		"3600",
+		"60",
 	}
 }
 
